@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/AksAman/gophercises/urlshortener/utils"
+	"github.com/AksAman/gophercises/utils"
 
 	"gopkg.in/yaml.v2"
 )
