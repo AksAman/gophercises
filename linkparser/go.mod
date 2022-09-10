@@ -2,4 +2,4 @@ module github.com/AksAman/gophercises/linkparser
 
 go 1.19
 
-replace github.com/AksAman/gophercises/utils => ../utils
+require golang.org/x/net v0.0.0-20220909164309-bea034e7d591
