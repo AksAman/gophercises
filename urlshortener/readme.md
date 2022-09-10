@@ -9,7 +9,7 @@ For instance, if we have a redirect setup for /dogs to https://www.somesite.com/
         Takes in a map of string to string (src to dest) 
 - [x]   JSONFileHandler
         Takes JSON filename
-        Format:
+        Data Format:
         
         [
           {
@@ -24,8 +24,6 @@ For instance, if we have a redirect setup for /dogs to https://www.somesite.com/
           url: /long-url
 - [x]   YAMLFileHandler
         Takes YAML filename
-        Format:
-        
-        - path: /urlshort
-          url: /long-url
+        Format:same as YAMLHandler
 
+Will may be add DB support in future
