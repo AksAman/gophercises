@@ -1,0 +1,5 @@
+---
+- path: /myshort
+  url: https://github.com/AksAman/gophercises.git
+- path: /jonshort
+  url: https://github.com/gophercises/urlshort

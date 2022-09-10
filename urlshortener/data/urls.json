@@ -1,0 +1,14 @@
+[
+    {
+        "path": "/nodemon",
+        "url": "https://github.com/remy/nodemon"
+    },
+    {
+        "path": "/git",
+        "url": "https://github.com/"
+    },
+    {
+        "path": "/go",
+        "url": "https://go.dev/"
+    }
+]
