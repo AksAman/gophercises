@@ -1,20 +1,22 @@
 package urlshortener
 
 import (
+	"embed"
 	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
-	"os"
-
-	"github.com/AksAman/gophercises/utils"
 
 	"gopkg.in/yaml.v2"
 )
 
+//go:embed data
+var dataFS embed.FS
+
 func handleRedirect(w http.ResponseWriter, r *http.Request, src, dest string) {
 	fmt.Println("handle redirect")
-	fmt.Fprintf(w, "Redirecting from %v to %v", src, dest)
+	w.Header().Set("Content-Type", "text/html")
+	fmt.Fprintf(w, `<h3>Redirecting from <a href="%v">%v</a> to <a href="%v">%v</a></h3><hr>`, src, src, dest, dest)
 	// http.Redirect(w, r, dest, http.StatusFound)
 }
 
@@ -30,7 +32,6 @@ func MapHandler(pathsToUrls map[string]string, fallback http.Handler) http.Handl
 		if dest, ok := pathsToUrls[src]; ok {
 			handleRedirect(w, r, src, dest)
 		} else {
-			log.Printf("%v not found", src)
 			fallback.ServeHTTP(w, r)
 		}
 	}
@@ -79,13 +80,9 @@ func YAMLHandler(yml []byte, fallback http.Handler) http.HandlerFunc {
 }
 
 func YAMLFileHandler(filename string, fallback http.Handler) http.HandlerFunc {
-	if !utils.DoesFileExists(filename) {
-		log.Println("file does not exists", filename)
-		return fallback.ServeHTTP
-	}
 
 	// read json file
-	ymlBytes, err := os.ReadFile(filename)
+	ymlBytes, err := dataFS.ReadFile(filename)
 	if err != nil {
 		log.Println("error while reading file", err)
 		return fallback.ServeHTTP
@@ -95,13 +92,9 @@ func YAMLFileHandler(filename string, fallback http.Handler) http.HandlerFunc {
 }
 
 func JSONFileHandler(filename string, fallback http.Handler) http.HandlerFunc {
-	if !utils.DoesFileExists(filename) {
-		log.Println("file does not exists", filename)
-		return fallback.ServeHTTP
-	}
 
 	// read json file
-	jsonBytes, err := os.ReadFile(filename)
+	jsonBytes, err := dataFS.ReadFile(filename)
 	if err != nil {
 		log.Println("error while reading file", err)
 		return fallback.ServeHTTP

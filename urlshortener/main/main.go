@@ -32,11 +32,11 @@ func main() {
 }
 
 func getJSONFileHandler(fallbackHandler http.HandlerFunc) http.HandlerFunc {
-	return urlshortener.JSONFileHandler("./data/urls.json", fallbackHandler)
+	return urlshortener.JSONFileHandler("data/urls.json", fallbackHandler)
 }
 
 func getYAMLFileHandler(fallbackHandler http.HandlerFunc) http.HandlerFunc {
-	return urlshortener.YAMLFileHandler("./data/urls.yaml", fallbackHandler)
+	return urlshortener.YAMLFileHandler("data/urls.yaml", fallbackHandler)
 }
 
 func getYAMLHandler(fallbackHandler http.HandlerFunc) http.HandlerFunc {
