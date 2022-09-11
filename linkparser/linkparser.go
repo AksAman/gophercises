@@ -2,7 +2,9 @@ package linkparser
 
 import (
 	"errors"
+	"fmt"
 	"io"
+	"strings"
 
 	"golang.org/x/net/html"
 )
@@ -16,6 +18,17 @@ import (
 type Link struct {
 	Href string `json:"href"`
 	Text string `json:"text"`
+}
+
+var nodeTypes map[html.NodeType]string = make(map[html.NodeType]string)
+
+func init() {
+	nodeTypes[html.ErrorNode] = "Type(ErrorNode)"
+	nodeTypes[html.TextNode] = "Type(TextNode)"
+	nodeTypes[html.DocumentNode] = "Type(ElementNode)"
+	nodeTypes[html.ElementNode] = "Type(ElementNode)"
+	nodeTypes[html.CommentNode] = "Type(CommentNode)"
+	nodeTypes[html.DoctypeNode] = "Type(DoctypeNode)"
 }
 
 func Parse(r io.Reader) ([]Link, error) {
@@ -51,8 +64,8 @@ func parseNode(node *html.Node) (Link, error) {
 				break
 			}
 		}
-		textData := findTextOfAnchorNode(node)
-
+		textData := findTextOfAnchorNode(node, "")
+		textData = cleanString(textData)
 		if href != "" && textData != "" {
 			return Link{Href: href, Text: textData}, nil
 		} else {
@@ -62,11 +75,25 @@ func parseNode(node *html.Node) (Link, error) {
 	return Link{}, errors.New("not an element node")
 }
 
-func findTextOfAnchorNode(node *html.Node) string {
+func findTextOfAnchorNode(node *html.Node, padding string) string {
+
+	var text string
+	// printNode(node, padding)
 	for child := node.FirstChild; child != nil; child = child.NextSibling {
 		if child.Type == html.TextNode {
-			return child.Data
+			text += child.Data
+		} else {
+			text += " " + findTextOfAnchorNode(child, padding+"  ")
 		}
 	}
-	return ""
+	// fmt.Printf("%v text: %v\n", padding+" -", text)
+	return text
+}
+
+func printNode(n *html.Node, padding string) {
+	fmt.Printf("%v node data: %q, of %v\n", padding, cleanString(n.Data), nodeTypes[n.Type])
+}
+
+func cleanString(s string) string {
+	return strings.Join(strings.Fields(s), " ")
 }

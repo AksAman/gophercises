@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -18,7 +19,6 @@ func check(err error) {
 }
 
 func main() {
-	utils.PrintLine()
 	// get current working directory
 	currentDir, err := os.Getwd()
 	check(err)
@@ -28,14 +28,16 @@ func main() {
 	htmlFiles, _ := os.ReadDir(htmlSrcDir)
 
 	for _, htmlFileInfo := range htmlFiles {
+		utils.PrintLine()
 		htmlFileName := htmlFileInfo.Name()
+		fmt.Printf("htmlFileName: %v\n", htmlFileName)
 		links, err := parseLinks(filepath.Join(htmlSrcDir, htmlFileName))
 		check(err)
 
 		saveToJSON(links, htmlFileName)
+		utils.PrintLine()
 	}
 
-	utils.PrintLine()
 }
 
 func saveToJSON(links []linkparser.Link, srcHtmlFileName string) {
