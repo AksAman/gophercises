@@ -30,7 +30,7 @@ func (r *Sitemap) SerializeToXML() ([]byte, error) {
 	return xml.MarshalIndent(r, "", "    ")
 }
 
-func (r *Sitemap) SerializeToFile(filePath string) error {
+func (r *Sitemap) SerializeToJSONFile(filePath string) error {
 	marshalled, err := json.MarshalIndent(r, "", "    ")
 	if err != nil {
 		return fmt.Errorf("unable to marshall to json file %v due to error: \n\t%v", filePath, err)
@@ -43,6 +43,23 @@ func (r *Sitemap) SerializeToFile(filePath string) error {
 	_, err = jsonFile.Write(marshalled)
 	if err != nil {
 		return fmt.Errorf("unable to Write to json file %v due to error: \n\t%v", filePath, err)
+	}
+	return nil
+}
+
+func (r *Sitemap) SerializeToXMLFile(filePath string) error {
+	marshalled, err := xml.MarshalIndent(r, "", "    ")
+	if err != nil {
+		return fmt.Errorf("unable to marshall to xml file %v due to error: \n\t%v", filePath, err)
+	}
+	xmlFile, err := os.Create(filePath)
+	if err != nil {
+		return fmt.Errorf("unable to create xml file %v due to error: \n\t%v", filePath, err)
+	}
+
+	_, err = xmlFile.Write(marshalled)
+	if err != nil {
+		return fmt.Errorf("unable to Write to xml file %v due to error: \n\t%v", filePath, err)
 	}
 	return nil
 }

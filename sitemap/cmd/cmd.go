@@ -32,11 +32,13 @@ func (urls *WebsiteURLs) Set(value string) error {
 var websiteURLs WebsiteURLs
 var maxDepth int
 var useThreads bool
+var serializationFormat string
 
 func init() {
 	flag.Var(&websiteURLs, "url", "website addresses to be parsed to generate sitemap")
 	flag.BoolVar(&useThreads, "threaded", false, "use threading for generation")
 	flag.IntVar(&maxDepth, "depth", 3, "maximum depth of links to be parsed")
+	flag.StringVar(&serializationFormat, "format", "json", "serialization format for sitemap")
 	flag.Parse()
 
 	// if len(websiteURLs) == 0 {
@@ -94,13 +96,24 @@ func CMDCreateSitemap(websiteURL WebsiteURL) {
 		return
 	}
 
-	jsonFileName := parsedURL.Host + ".ignore.json"
-	jsonFilePath := filepath.Join(".", "results", jsonFileName)
-	err = sitemap.SerializeToFile(jsonFilePath)
+	fileName := parsedURL.Host + ".ignore." + serializationFormat
+	filePath := filepath.Join(".", "results", fileName)
+
+	var serializer func(string) error
+	switch serializationFormat {
+	case "json":
+		serializer = sitemap.SerializeToJSONFile
+	case "xml":
+		serializer = sitemap.SerializeToXMLFile
+	default:
+		logger.Errorf("Unknown serialization format:%q", serializationFormat)
+		return
+	}
+	err = serializer(filePath)
 	if err != nil {
 		logger.Errorf("err: %v\n", err)
 		return
 	} else {
-		logger.Infoln("Saved sitemap to", jsonFilePath)
+		logger.Infoln("Saved sitemap to", filePath)
 	}
 }
