@@ -2,23 +2,36 @@ package sitemap
 
 import (
 	"bytes"
-	"fmt"
 	"io"
 	"net/http"
 	"net/url"
 
 	"github.com/AksAman/gophercises/linkparser"
 	"github.com/AksAman/gophercises/sitemap/models"
+	"github.com/AksAman/gophercises/sitemap/utils"
+	"go.uber.org/zap"
 )
 
-func Generate(websiteURL *url.URL) (*models.Sitemap, error) {
-	fmt.Printf("generating sitemap for site: %v\n", websiteURL)
+var logger *zap.SugaredLogger
 
-	body, err := getHTMLBody(websiteURL.String())
+func init() {
+	utils.InitializeLogger()
+	logger = utils.Logger
+}
+
+func Generate(websiteURL *url.URL, maxDepth int) (*models.Sitemap, error) {
+	logger.Infof("generating sitemap for site: %v\n", websiteURL)
+
+	finalURL, err := getFinalURL(websiteURL)
 	if err != nil {
 		return nil, err
 	}
-	return generateSitemap(body, websiteURL.Hostname())
+
+	body, err := getHTMLBody(finalURL.String())
+	if err != nil {
+		return nil, err
+	}
+	return generateSitemap(body, finalURL)
 }
 
 func getHTMLBody(websiteURLStr string) ([]byte, error) {
@@ -35,12 +48,34 @@ func getHTMLBody(websiteURLStr string) ([]byte, error) {
 	return body, nil
 }
 
-func generateSitemap(siteBytes []byte, hostname string) (*models.Sitemap, error) {
+// Gets the base url either from final redirect or from a long url
+func getFinalURL(originalURL *url.URL) (*url.URL, error) {
+	r, err := http.Head(originalURL.String())
+	if err != nil {
+		return nil, err
+	}
+	finalURL := r.Request.URL
+	return &url.URL{
+		Scheme: finalURL.Scheme,
+		Host:   finalURL.Host,
+	}, nil
+}
+
+func generateSitemap(siteBytes []byte, websiteURL *url.URL) (*models.Sitemap, error) {
 
 	visitedURLs := map[string]bool{}
 	links, _ := linkparser.Parse(bytes.NewReader(siteBytes))
 
-	urlset := models.URLSet{}
+	urlset := models.URLSet{
+		URLs: []models.URL{
+			{
+				Loc:      websiteURL.String(),
+				Priority: 1.00,
+			},
+		},
+	}
+	visitedURLs[websiteURL.Path] = true
+
 	for _, link := range links {
 		u, err := url.Parse(link.Href)
 		if err != nil {
@@ -48,10 +83,10 @@ func generateSitemap(siteBytes []byte, hostname string) (*models.Sitemap, error)
 			continue
 		}
 		path := u.Path
-		if u.Hostname() != "" && u.Hostname() != hostname {
+		if u.Hostname() != "" && u.Hostname() != websiteURL.Hostname() {
 			continue
 		}
-		if u.Path == "" {
+		if u.Path == "" || u.Path == "/" {
 			continue
 		}
 		if visitedURLs[path] {
@@ -59,13 +94,13 @@ func generateSitemap(siteBytes []byte, hostname string) (*models.Sitemap, error)
 		}
 		// hrefs := strings.Split(link.Href, hostname)
 		urlset.URLs = append(urlset.URLs, models.URL{
-			Loc:      path,
-			Priority: 0,
+			Loc:      websiteURL.String() + path,
+			Priority: 0.50,
 		})
 		visitedURLs[path] = true
 	}
 
-	return &models.Sitemap{
-		Urlset: urlset,
-	}, nil
+	return models.NewSitemap(
+		urlset,
+	), nil
 }

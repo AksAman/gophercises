@@ -8,5 +8,5 @@ type URL struct {
 	Loc        string  `json:"loc"`
 	Lastmod    *string `json:"lastmod,omitempty"`
 	Changefreq *string `json:"changefreq,omitempty"`
-	Priority   int     `json:"priority"`
+	Priority   float64 `json:"priority"`
 }

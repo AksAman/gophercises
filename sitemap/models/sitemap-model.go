@@ -42,5 +42,10 @@ func (r *Sitemap) SerializeToFile(filePath string) error {
 }
 
 type Sitemap struct {
+	Xmlns  string `json:"xmlns"`
 	Urlset URLSet `json:"urlset"`
+}
+
+func NewSitemap(urlset URLSet) *Sitemap {
+	return &Sitemap{Urlset: urlset, Xmlns: "http://www.sitemaps.org/schemas/sitemap/0.9"}
 }
