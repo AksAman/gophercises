@@ -10,11 +10,11 @@ import (
 
 var Logger *zap.SugaredLogger
 
-func InitializeLogger() {
+func InitializeLogger(logFilename string) {
 
 	core := zapcore.NewTee(
 		zapcore.NewCore(getConsoleEncoder(), zapcore.Lock(os.Stdout), zapcore.DebugLevel),
-		zapcore.NewCore(getJSONEncoder(), getLogWriter(), zapcore.DebugLevel),
+		zapcore.NewCore(getJSONEncoder(), getLogWriter(logFilename), zapcore.DebugLevel),
 	)
 	Logger = zap.New(core, zap.AddCaller()).Sugar()
 	defer Logger.Sync()
@@ -41,11 +41,11 @@ func getConsoleEncoder() zapcore.Encoder {
 	return zapcore.NewConsoleEncoder(config)
 }
 
-func getLogWriter() zapcore.WriteSyncer {
+func getLogWriter(logFilename string) zapcore.WriteSyncer {
 	logsPath := "logs"
 	if _, err := os.Stat(logsPath); os.IsNotExist(err) {
 		os.Mkdir(logsPath, os.ModePerm)
 	}
-	file, _ := os.Create(filepath.Join(logsPath, "sitemap.log"))
+	file, _ := os.Create(filepath.Join(logsPath, logFilename))
 	return zapcore.AddSync(file)
 }

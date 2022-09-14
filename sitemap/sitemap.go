@@ -15,7 +15,7 @@ import (
 var logger *zap.SugaredLogger
 
 func init() {
-	utils.InitializeLogger()
+	utils.InitializeLogger("sitemap.log")
 	logger = utils.Logger
 }
 
