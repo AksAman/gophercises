@@ -56,15 +56,15 @@ func LoggingMiddleware(next http.Handler) http.Handler {
 
 func RunServer() {
 	router := http.NewServeMux()
-	configuredRouter := LoggingMiddleware(router)
+	routerWithLogger := LoggingMiddleware(router)
 
-	router.HandleFunc("/", CreateSitemapView)
+	router.HandleFunc("/sitemap/", CreateSitemapView)
 
 	address := ":8080"
 	logger.Info("Starting server at", address)
 	server := http.Server{
 		Addr:    address,
-		Handler: configuredRouter,
+		Handler: routerWithLogger,
 	}
 
 	server.ListenAndServe()
@@ -73,36 +73,62 @@ func RunServer() {
 func CreateSitemapView(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
+	format := r.URL.Query().Get("format")
+	if format == "" {
+		format = "json"
+	}
 	websiteURL := r.URL.Query().Get("url")
 	maxDepth := 3
 	if r.URL.Query().Has("depth") {
 		maxDepth, _ = strconv.Atoi(r.URL.Query().Get("depth"))
 	}
-	logger.Info("Creating sitemap for url: ", websiteURL, " with max depth: ", maxDepth)
 	if websiteURL == "" {
-		logger.Warn("No url passed")
+		logger.Error("No url passed")
 		JSONError(w, HTTPError{Error: "No url passed"}, http.StatusBadRequest)
 		return
 	}
+	logger.Info("Creating sitemap for url: ", websiteURL, " with max depth: ", maxDepth)
 
 	parsedURL, err := url.Parse(string(websiteURL))
 	if err != nil {
-		logger.Warn("Unable to parse website url", zap.String("url", websiteURL), zap.Error(err))
+		logger.Error("Unable to parse website url", zap.String("url", websiteURL), zap.Error(err))
 		JSONError(w, HTTPError{Error: "Invalid url passed"}, http.StatusBadRequest)
 		return
 	}
 
 	sitemap, err := sitemap.Generate(parsedURL, maxDepth)
 	if err != nil {
-		logger.Warn("Unable to generate sitemap for site", zap.String("url", websiteURL), zap.Error(err))
+		logger.Error("Unable to generate sitemap for site", zap.String("url", websiteURL), zap.Error(err))
 		JSONError(w, HTTPError{Error: err.Error()}, http.StatusBadRequest)
 		return
 	}
 
-	serialized, err := sitemap.Serialize()
+	serializers := map[string]struct {
+		serializer  func() ([]byte, error)
+		contentType string
+	}{
+		"json": {
+			serializer:  sitemap.SerializeToJSON,
+			contentType: "application/json",
+		},
+		"xml": {
+			serializer:  sitemap.SerializeToXML,
+			contentType: "application/xml",
+		},
+	}
+	s, found := serializers[format]
+
+	if !found {
+		logger.Error("Invalid format passed", zap.String("format", format))
+		JSONError(w, HTTPError{Error: "Invalid format passed"}, http.StatusBadRequest)
+		return
+	}
+
+	serialized, err := s.serializer()
+	w.Header().Set("Content-Type", s.contentType)
 	if err != nil {
-		logger.Warn("Unable to serialize sitemap", zap.String("url", websiteURL), zap.Error(err))
-		JSONError(w, HTTPError{Error: err.Error()}, http.StatusBadRequest)
+		logger.Error("Unable to serialize sitemap", zap.String("url", websiteURL), zap.Error(err))
+		JSONError(w, HTTPError{Error: err.Error()}, http.StatusInternalServerError)
 		return
 	}
 	w.Write(serialized)

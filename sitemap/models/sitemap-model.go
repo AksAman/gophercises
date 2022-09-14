@@ -10,6 +10,7 @@ package models
 
 import (
 	"encoding/json"
+	"encoding/xml"
 	"fmt"
 	"os"
 )
@@ -20,8 +21,13 @@ func Deserialize(data []byte) (Sitemap, error) {
 	return r, err
 }
 
-func (r *Sitemap) Serialize() ([]byte, error) {
-	return json.MarshalIndent(r, "", "    ")
+func (r *Sitemap) SerializeToJSON() ([]byte, error) {
+	// return json.MarshalIndent(r, "", "    ")
+	return json.Marshal(r)
+}
+
+func (r *Sitemap) SerializeToXML() ([]byte, error) {
+	return xml.MarshalIndent(r, "", "    ")
 }
 
 func (r *Sitemap) SerializeToFile(filePath string) error {
@@ -42,8 +48,9 @@ func (r *Sitemap) SerializeToFile(filePath string) error {
 }
 
 type Sitemap struct {
-	Xmlns  string `json:"xmlns"`
-	Urlset URLSet `json:"urlset"`
+	XMLName xml.Name `xml:"sitemap" json:"-"`
+	Xmlns   string   `json:"xmlns" xml:"xmlns,attr"`
+	Urlset  URLSet   `json:"urlset" xml:"urlset"`
 }
 
 func NewSitemap(urlset URLSet) *Sitemap {

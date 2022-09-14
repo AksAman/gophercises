@@ -1,6 +1,7 @@
 package linkparser
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"io"
@@ -35,6 +36,18 @@ func Parse(r io.Reader) ([]Link, error) {
 	links := []Link{}
 
 	node, err := html.Parse(r)
+	if err != nil {
+		return []Link{}, err
+	}
+
+	parseNodes(node, &links)
+
+	return links, nil
+}
+
+func ParseBytes(data []byte) ([]Link, error) {
+	links := []Link{}
+	node, err := html.Parse(bytes.NewReader(data))
 	if err != nil {
 		return []Link{}, err
 	}

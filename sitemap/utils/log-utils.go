@@ -13,13 +13,13 @@ var Logger *zap.SugaredLogger
 func InitializeLogger(logFilename string) {
 
 	core := zapcore.NewTee(
-		zapcore.NewCore(getConsoleEncoder(), zapcore.Lock(os.Stdout), zapcore.DebugLevel),
+		zapcore.NewCore(getConsoleEncoder(), zapcore.Lock(os.Stdout), zapcore.InfoLevel),
 		zapcore.NewCore(getJSONEncoder(), getLogWriter(logFilename), zapcore.DebugLevel),
 	)
 	Logger = zap.New(core, zap.AddCaller()).Sugar()
 	defer Logger.Sync()
 
-	Logger.Info("Logger initialized")
+	Logger.Info("\nLogger initialized\n")
 }
 
 func getEncoderConfig() zapcore.EncoderConfig {
@@ -46,6 +46,6 @@ func getLogWriter(logFilename string) zapcore.WriteSyncer {
 	if _, err := os.Stat(logsPath); os.IsNotExist(err) {
 		os.Mkdir(logsPath, os.ModePerm)
 	}
-	file, _ := os.Create(filepath.Join(logsPath, logFilename))
+	file, _ := os.OpenFile(filepath.Join(logsPath, logFilename), os.O_CREATE|os.O_APPEND|os.O_RDWR, 0744)
 	return zapcore.AddSync(file)
 }
