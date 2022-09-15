@@ -6,4 +6,4 @@
 - [tri-go-task-manager](https://github.com/AksAman/tri-go-task-manager)
 
 ## Other Packages
-- [utils](https://github.com/AksAman/gophercises/tree/master/quiz)
+- [utils](https://github.com/AksAman/gophercises/tree/master/utils)
