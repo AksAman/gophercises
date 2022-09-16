@@ -46,10 +46,7 @@ Original link : [gophercises/phone](https://github.com/gophercises/phone)
     ```
 
 ### Learning Outcomes
-[ ] Some string manipulation
-
-[ ] Learn how to write raw SQL using the [`database/sql`](https://golang.org/pkg/database/sql/) package in the standard library
-
-[ ] Learn how to use the [`sqlx`](https://github.com/jmoiron/sqlx) package, which is an extension/wrapper around `database/sql` that makes it easier to work with.
-
-[ ] Learn how to use a minimalistic ORM. Here we'll use the [`gorm`](https://github.com/jinzhu/gorm) package
+- [ ] Some string manipulation
+- [ ] Learn how to write raw SQL using the [`database/sql`](https://golang.org/pkg/database/sql/) package in the standard library
+- [ ] Learn how to use the [`sqlx`](https://github.com/jmoiron/sqlx) package, which is an extension/wrapper around `database/sql` that makes it easier to work with.
+- [ ] Learn how to use a minimalistic ORM. Here we'll use the [`gorm`](https://github.com/jinzhu/gorm) package
