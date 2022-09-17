@@ -1,0 +1,134 @@
+package main
+
+import (
+	"github.com/AksAman/gophercises/phone/dblib"
+	"github.com/AksAman/gophercises/phone/normalizer"
+	"github.com/AksAman/gophercises/phone/utils"
+	"go.uber.org/zap"
+)
+
+var logger *zap.SugaredLogger
+
+func init() {
+	utils.InitializeLogger("")
+	logger = utils.Logger
+}
+
+func must(err error) {
+	if err != nil {
+		logger.Fatal(err)
+	}
+}
+
+var seedData = []string{
+	"1234567890",
+	"123 456 7891",
+	"(123) 456 7892",
+	"(123) 456-7893",
+	"123-456-7894",
+	"123-456-7890",
+	"1234567892",
+	"(123)456-7892",
+}
+
+func main() {
+	RunRawDB()
+}
+
+func RunRawDB() {
+
+	// region Initialize DB
+	utils.Title("Initialize RawDB")
+	phoneDB, err := dblib.InitRawDB(true)
+	must(err)
+
+	phoneRawDB := phoneDB.(*dblib.RawDB)
+	defer func() {
+		utils.Title("Closing DB")
+		err := phoneRawDB.Close()
+		must(err)
+	}()
+	// endregion
+
+	// region Seed DB
+	err = phoneRawDB.Seed(seedData)
+	must(err)
+	// endregion
+
+	var phone *dblib.PhoneRaw
+
+	// region Get By ID
+	id := 2
+	phone, err = phoneRawDB.Get(id)
+	must(err)
+	logger.Infof("Phone for id %d: %#v\n", id, phone)
+	// endregion
+
+	// region Search
+	searchNumber := func(phoneNumberToFind string) {
+		phone, err := phoneRawDB.FindPhone(phoneNumberToFind)
+		if _, ok := err.(*dblib.NoRecordFoundError); ok {
+			logger.Warnf("No record found for %s", phoneNumberToFind)
+		} else {
+			must(err)
+		}
+		if phone != nil {
+			logger.Infof("Found phone: %#v", phone)
+		}
+	}
+	testNumbers := []string{
+		"1234567890",
+		"Not a phone number",
+	}
+	for _, testNumber := range testNumbers {
+		searchNumber(testNumber)
+	}
+
+	// endregion
+
+	// region All
+	allPhones, err := phoneRawDB.All()
+	must(err)
+	for _, p := range allPhones {
+		logger.Infof("phone: %#v", p)
+	}
+	// endregion
+
+	// normalize and update phone numbers
+	utils.Title("Normalize and update phone numbers")
+	for _, p := range allPhones {
+		normalizedNumber := normalizer.NormalizePhoneNumber(p.Number)
+		if p.Number == normalizedNumber {
+			logger.Infof("Phone number %s is already normalized", p.Number)
+			continue
+		}
+
+		logger.Infof("normalizing %#v to %s", p, normalizedNumber)
+		existingPhones, err := phoneRawDB.FindPhones(normalizedNumber)
+		must(err)
+		if len(existingPhones) > 0 {
+			logger.Warnf("%d Phone numbers already exists with id %d and number %s", len(existingPhones), p.ID, normalizedNumber)
+			for _, existingPhone := range existingPhones {
+				err := phoneRawDB.DeletePhone(existingPhone.ID)
+				if err != nil {
+					logger.Errorf("Error deleting phone: %#v", err)
+					continue
+				}
+				logger.Warnf("Deleted phone: %#v", existingPhone)
+			}
+		}
+
+		p.Number = normalizedNumber
+		err = phoneRawDB.UpdatePhone(&p)
+		must(err)
+		logger.Infof("Updated phone: %#v\n", &p)
+	}
+
+	// region All
+	allPhones, err = phoneRawDB.All()
+	must(err)
+	for _, p := range allPhones {
+		logger.Infof("phone: %#v", p)
+	}
+	// endregion
+}
