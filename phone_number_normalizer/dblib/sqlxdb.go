@@ -54,7 +54,7 @@ func (s *SqlxDB) InsertPhone(number string) (id int, err error) {
 	return
 }
 
-func (s *SqlxDB) All() (phones []models.PhoneSqlx, err error) {
+func (s *SqlxDB) All() (phones []*models.PhoneSqlx, err error) {
 	utils.Title("Getting all phone numbers")
 	statement := `SELECT id, number FROM phone_numbers ORDER BY number ASC`
 
@@ -65,7 +65,7 @@ func (s *SqlxDB) All() (phones []models.PhoneSqlx, err error) {
 	defer rows.Close()
 
 	for rows.Next() {
-		var phone models.PhoneSqlx
+		var phone *models.PhoneSqlx
 		if err = rows.Scan(&phone.ID, &phone.Number); err != nil {
 			return nil, err
 		}

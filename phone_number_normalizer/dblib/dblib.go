@@ -28,7 +28,7 @@ type IPhoneDB[T interface{}] interface {
 	Seed([]string) error
 	Migrate() error
 	InsertPhone(string) (id int, err error)    // C
-	All() (phones []T, err error)              // R (all)
+	All() (phones []*T, err error)             // R (all)
 	Get(int) (phone *T, err error)             // R (by id)
 	FindPhone(string) (phone *T, err error)    // Search (by number)
 	FindPhones(string) (phones []T, err error) // Search (by number)

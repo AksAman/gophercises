@@ -39,8 +39,101 @@ func main() {
 	// utils.Title("Initialize RawDB")
 	db, err := dblib.InitRawDB(true)
 	must(err)
-	var rawPhone *models.PhoneRaw
+	var rawPhone *models.PhoneRaw = &models.PhoneRaw{}
 	RunDB[models.PhoneRaw](db, rawPhone)
+}
+
+func RunDB[T models.IPhone](db dblib.IPhoneDB[T], phone *T) {
+
+	// region Initialize DB
+	defer func() {
+		utils.Title("Closing DB")
+		err := db.Close()
+		must(err)
+	}()
+	// endregion
+
+	// region Seed DB
+	err := db.Seed(seedData)
+	must(err)
+	// endregion
+
+	// region Get By ID
+	id := 2
+	phone, err = db.Get(id)
+	must(err)
+	logger.Infof("Phone for id %d: %#v\n", id, phone)
+	// endregion
+
+	// region Search
+	searchNumber := func(phoneNumberToFind string) {
+		phone, err := db.FindPhone(phoneNumberToFind)
+		if _, ok := err.(*dblib.NoRecordFoundError); ok {
+			logger.Warnf("No record found for %s", phoneNumberToFind)
+		} else {
+			must(err)
+		}
+		if phone != nil {
+			logger.Infof("Found phone: %#v", phone)
+		}
+	}
+	testNumbers := []string{
+		"1234567890",
+		"Not a phone number",
+	}
+	for _, testNumber := range testNumbers {
+		searchNumber(testNumber)
+	}
+
+	// endregion
+
+	// region All
+	allPhones, err := db.All()
+	must(err)
+	for _, p := range allPhones {
+		logger.Infof("phone: %#v", p)
+	}
+	// endregion
+
+	// normalize and update phone numbers
+	utils.Title("Normalize and update phone numbers")
+
+	for _, p2 := range allPhones {
+		var p = *p2
+		normalizedNumber := normalizer.NormalizePhoneNumber(p.GetNumber())
+		if p.GetNumber() == normalizedNumber {
+			logger.Infof("Phone number %s is already normalized", p.GetNumber())
+			continue
+		}
+
+		logger.Infof("normalizing %#v to %s", p, normalizedNumber)
+		existingPhones, err := db.FindPhones(normalizedNumber)
+		must(err)
+		if len(existingPhones) > 0 {
+			logger.Warnf("%d Phone numbers already exists with id %d and number %s", len(existingPhones), p.GetID(), normalizedNumber)
+			for _, existingPhone := range existingPhones {
+				err := db.DeletePhone(existingPhone.GetID())
+				if err != nil {
+					logger.Errorf("Error deleting phone: %#v", err)
+					continue
+				}
+				logger.Warnf("Deleted phone: %#v", existingPhone)
+			}
+		}
+
+		p.SetNumber(normalizedNumber)
+		err = db.UpdatePhone(&p)
+		must(err)
+		logger.Infof("Updated phone: %#v\n", &p)
+	}
+
+	// region All
+	allPhones, err = db.All()
+	must(err)
+	for _, p := range allPhones {
+		logger.Infof("phone: %#v", p)
+	}
+	// endregion
 }
 
 func RunRawDB() {
@@ -127,7 +220,7 @@ func RunRawDB() {
 		}
 
 		p.Number = normalizedNumber
-		err = phoneDB.UpdatePhone(&p)
+		err = phoneDB.UpdatePhone(p)
 		must(err)
 		logger.Infof("Updated phone: %#v\n", &p)
 	}
@@ -225,105 +318,13 @@ func RunSqlxDB() {
 		}
 
 		p.Number = normalizedNumber
-		err = phoneDB.UpdatePhone(&p)
+		err = phoneDB.UpdatePhone(p)
 		must(err)
 		logger.Infof("Updated phone: %#v\n", &p)
 	}
 
 	// region All
 	allPhones, err = phoneDB.All()
-	must(err)
-	for _, p := range allPhones {
-		logger.Infof("phone: %#v", p)
-	}
-	// endregion
-}
-
-func RunDB[T models.IPhone](db dblib.IPhoneDB[T], phone *T) {
-
-	// region Initialize DB
-	defer func() {
-		utils.Title("Closing DB")
-		err := db.Close()
-		must(err)
-	}()
-	// endregion
-
-	// region Seed DB
-	err := db.Seed(seedData)
-	must(err)
-	// endregion
-
-	// region Get By ID
-	id := 2
-	phone, err = db.Get(id)
-	must(err)
-	logger.Infof("Phone for id %d: %#v\n", id, phone)
-	// endregion
-
-	// region Search
-	searchNumber := func(phoneNumberToFind string) {
-		phone, err := db.FindPhone(phoneNumberToFind)
-		if _, ok := err.(*dblib.NoRecordFoundError); ok {
-			logger.Warnf("No record found for %s", phoneNumberToFind)
-		} else {
-			must(err)
-		}
-		if phone != nil {
-			logger.Infof("Found phone: %#v", phone)
-		}
-	}
-	testNumbers := []string{
-		"1234567890",
-		"Not a phone number",
-	}
-	for _, testNumber := range testNumbers {
-		searchNumber(testNumber)
-	}
-
-	// endregion
-
-	// region All
-	allPhones, err := db.All()
-	must(err)
-	for _, p := range allPhones {
-		logger.Infof("phone: %#v", p)
-	}
-	// endregion
-
-	// normalize and update phone numbers
-	utils.Title("Normalize and update phone numbers")
-
-	for _, p := range allPhones {
-		normalizedNumber := normalizer.NormalizePhoneNumber(p.GetNumber())
-		if p.GetNumber() == normalizedNumber {
-			logger.Infof("Phone number %s is already normalized", p.GetNumber())
-			continue
-		}
-
-		logger.Infof("normalizing %#v to %s", p, normalizedNumber)
-		existingPhones, err := db.FindPhones(normalizedNumber)
-		must(err)
-		if len(existingPhones) > 0 {
-			logger.Warnf("%d Phone numbers already exists with id %d and number %s", len(existingPhones), p.GetID(), normalizedNumber)
-			for _, existingPhone := range existingPhones {
-				err := db.DeletePhone(existingPhone.GetID())
-				if err != nil {
-					logger.Errorf("Error deleting phone: %#v", err)
-					continue
-				}
-				logger.Warnf("Deleted phone: %#v", existingPhone)
-			}
-		}
-
-		p.SetNumber(normalizedNumber)
-		err = db.UpdatePhone(&p)
-		must(err)
-		logger.Infof("Updated phone: %#v\n", &p)
-	}
-
-	// region All
-	allPhones, err = db.All()
 	must(err)
 	for _, p := range allPhones {
 		logger.Infof("phone: %#v", p)

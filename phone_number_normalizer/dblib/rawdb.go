@@ -26,7 +26,7 @@ func (r *RawDB) InsertPhone(number string) (id int, err error) {
 }
 
 // All : C"R"UD
-func (r *RawDB) All() (phones []models.PhoneRaw, err error) {
+func (r *RawDB) All() (phones []*models.PhoneRaw, err error) {
 	utils.Title("Getting all phone numbers")
 	statement := `SELECT id, number FROM phone_numbers ORDER BY number ASC`
 
@@ -37,7 +37,7 @@ func (r *RawDB) All() (phones []models.PhoneRaw, err error) {
 	defer rows.Close()
 
 	for rows.Next() {
-		var phone models.PhoneRaw
+		var phone *models.PhoneRaw
 		if err = rows.Scan(&phone.ID, &phone.Number); err != nil {
 			return nil, err
 		}
