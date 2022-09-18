@@ -10,11 +10,6 @@ import (
 	"github.com/AksAman/gophercises/phone/utils"
 )
 
-type PhoneSqlx struct {
-	ID int
-	models.Phone
-}
-
 type SqlxDB struct {
 	db *sqlx.DB
 }
@@ -59,7 +54,7 @@ func (s *SqlxDB) InsertPhone(number string) (id int, err error) {
 	return
 }
 
-func (s *SqlxDB) All() (phones []PhoneSqlx, err error) {
+func (s *SqlxDB) All() (phones []models.PhoneSqlx, err error) {
 	utils.Title("Getting all phone numbers")
 	statement := `SELECT id, number FROM phone_numbers ORDER BY number ASC`
 
@@ -70,7 +65,7 @@ func (s *SqlxDB) All() (phones []PhoneSqlx, err error) {
 	defer rows.Close()
 
 	for rows.Next() {
-		var phone PhoneSqlx
+		var phone models.PhoneSqlx
 		if err = rows.Scan(&phone.ID, &phone.Number); err != nil {
 			return nil, err
 		}
@@ -83,17 +78,17 @@ func (s *SqlxDB) All() (phones []PhoneSqlx, err error) {
 	return phones, err
 }
 
-func (s *SqlxDB) Get(id int) (phone *PhoneSqlx, err error) {
+func (s *SqlxDB) Get(id int) (phone *models.PhoneSqlx, err error) {
 	utils.Titlef("Getting phone number with id %d", id)
-	phone = &PhoneSqlx{}
+	phone = &models.PhoneSqlx{}
 	statement := `SELECT id, number FROM phone_numbers WHERE id=$1`
 	err = s.db.QueryRow(statement, id).Scan(&phone.ID, &phone.Number)
 	return phone, err
 }
 
-func (s *SqlxDB) FindPhone(number string) (p *PhoneSqlx, err error) {
+func (s *SqlxDB) FindPhone(number string) (p *models.PhoneSqlx, err error) {
 	utils.Titlef("Searching for phone number %q", number)
-	p = &PhoneSqlx{}
+	p = &models.PhoneSqlx{}
 	statement := `SELECT id, number FROM phone_numbers WHERE number=$1`
 
 	row := s.db.QueryRow(statement, number)
@@ -107,7 +102,7 @@ func (s *SqlxDB) FindPhone(number string) (p *PhoneSqlx, err error) {
 	return p, err
 }
 
-func (s *SqlxDB) FindPhones(number string) (phones []PhoneSqlx, err error) {
+func (s *SqlxDB) FindPhones(number string) (phones []models.PhoneSqlx, err error) {
 	// utils.Titlef("FindPhones all phone numbers with number=%s", number)
 	statement := `SELECT id, number FROM phone_numbers WHERE number=$1`
 
@@ -118,7 +113,7 @@ func (s *SqlxDB) FindPhones(number string) (phones []PhoneSqlx, err error) {
 	defer rows.Close()
 
 	for rows.Next() {
-		var phone PhoneSqlx
+		var phone models.PhoneSqlx
 		if err = rows.Scan(&phone.ID, &phone.Number); err != nil {
 			return nil, err
 		}
@@ -130,7 +125,7 @@ func (s *SqlxDB) FindPhones(number string) (phones []PhoneSqlx, err error) {
 	}
 	return phones, err
 }
-func (s SqlxDB) UpdatePhone(phone *PhoneSqlx) error {
+func (s SqlxDB) UpdatePhone(phone *models.PhoneSqlx) error {
 	statement := `UPDATE phone_numbers SET number=$2 WHERE id=$1`
 	_, err := s.db.Exec(statement, phone.ID, phone.Number)
 	return err
@@ -143,7 +138,7 @@ func (s SqlxDB) DeletePhone(id int) error {
 	return err
 }
 
-func InitSqlxDB(reset bool) (IPhoneDB[PhoneSqlx], error) {
+func InitSqlxDB(reset bool) (IPhoneDB[models.PhoneSqlx], error) {
 	config, err := utils.LoadConfig()
 	if err != nil {
 		return nil, err
@@ -172,7 +167,7 @@ func InitSqlxDB(reset bool) (IPhoneDB[PhoneSqlx], error) {
 	return db, err
 }
 
-func openSqlxDB(driverName, dataSourceName string) (IPhoneDB[PhoneSqlx], error) {
+func openSqlxDB(driverName, dataSourceName string) (IPhoneDB[models.PhoneSqlx], error) {
 	db, err := sqlx.Connect(driverName, dataSourceName)
 	if err != nil {
 		return nil, err

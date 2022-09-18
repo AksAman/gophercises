@@ -8,11 +8,6 @@ import (
 	"github.com/AksAman/gophercises/phone/utils"
 )
 
-type PhoneRaw struct {
-	ID int
-	models.Phone
-}
-
 type RawDB struct {
 	db *sql.DB
 }
@@ -31,7 +26,7 @@ func (r *RawDB) InsertPhone(number string) (id int, err error) {
 }
 
 // All : C"R"UD
-func (r *RawDB) All() (phones []PhoneRaw, err error) {
+func (r *RawDB) All() (phones []models.PhoneRaw, err error) {
 	utils.Title("Getting all phone numbers")
 	statement := `SELECT id, number FROM phone_numbers ORDER BY number ASC`
 
@@ -42,7 +37,7 @@ func (r *RawDB) All() (phones []PhoneRaw, err error) {
 	defer rows.Close()
 
 	for rows.Next() {
-		var phone PhoneRaw
+		var phone models.PhoneRaw
 		if err = rows.Scan(&phone.ID, &phone.Number); err != nil {
 			return nil, err
 		}
@@ -55,18 +50,18 @@ func (r *RawDB) All() (phones []PhoneRaw, err error) {
 	return phones, err
 }
 
-func (r *RawDB) Get(id int) (phone *PhoneRaw, err error) {
+func (r *RawDB) Get(id int) (phone *models.PhoneRaw, err error) {
 	utils.Titlef("Getting phone number with id %d", id)
-	phone = &PhoneRaw{}
+	phone = &models.PhoneRaw{}
 	statement := `SELECT id, number FROM phone_numbers WHERE id=$1`
 	err = r.db.QueryRow(statement, id).Scan(&phone.ID, &phone.Number)
 	return phone, err
 }
 
 // FindPhone Search (by number)
-func (r *RawDB) FindPhone(number string) (p *PhoneRaw, err error) {
+func (r *RawDB) FindPhone(number string) (p *models.PhoneRaw, err error) {
 	utils.Titlef("Searching for phone number %q", number)
-	p = &PhoneRaw{}
+	p = &models.PhoneRaw{}
 	statement := `SELECT id, number FROM phone_numbers WHERE number=$1`
 
 	row := r.db.QueryRow(statement, number)
@@ -81,7 +76,7 @@ func (r *RawDB) FindPhone(number string) (p *PhoneRaw, err error) {
 }
 
 // FindPhones : Filter by number
-func (r *RawDB) FindPhones(number string) (phones []PhoneRaw, err error) {
+func (r *RawDB) FindPhones(number string) (phones []models.PhoneRaw, err error) {
 	// utils.Titlef("FindPhones all phone numbers with number=%s", number)
 	statement := `SELECT id, number FROM phone_numbers WHERE number=$1`
 
@@ -92,7 +87,7 @@ func (r *RawDB) FindPhones(number string) (phones []PhoneRaw, err error) {
 	defer rows.Close()
 
 	for rows.Next() {
-		var phone PhoneRaw
+		var phone models.PhoneRaw
 		if err = rows.Scan(&phone.ID, &phone.Number); err != nil {
 			return nil, err
 		}
@@ -106,7 +101,7 @@ func (r *RawDB) FindPhones(number string) (phones []PhoneRaw, err error) {
 }
 
 // UpdatePhone CR"U"D
-func (r *RawDB) UpdatePhone(p *PhoneRaw) error {
+func (r *RawDB) UpdatePhone(p *models.PhoneRaw) error {
 	// utils.Titlef("Updating phone to %#v", p)
 	statement := `UPDATE phone_numbers SET number=$2 WHERE id=$1`
 	_, err := r.db.Exec(statement, p.ID, p.Number)
@@ -150,7 +145,7 @@ func (r *RawDB) Migrate() error {
 	return nil
 }
 
-func InitRawDB(reset bool) (IPhoneDB[PhoneRaw], error) {
+func InitRawDB(reset bool) (IPhoneDB[models.PhoneRaw], error) {
 	config, err := utils.LoadConfig()
 	if err != nil {
 		return nil, err
@@ -179,7 +174,7 @@ func InitRawDB(reset bool) (IPhoneDB[PhoneRaw], error) {
 	return rawDB, err
 }
 
-func openRawDB(driverName, dataSourceName string) (IPhoneDB[PhoneRaw], error) {
+func openRawDB(driverName, dataSourceName string) (IPhoneDB[models.PhoneRaw], error) {
 	db, err := sql.Open(driverName, dataSourceName)
 	if err != nil {
 		return nil, err
