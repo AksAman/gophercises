@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/AksAman/gophercises/phone/dblib"
 	"github.com/AksAman/gophercises/phone/models"
 	"github.com/AksAman/gophercises/phone/normalizer"
@@ -33,14 +35,10 @@ var seedData = []string{
 }
 
 func main() {
-	RunRawDB()
-	RunSqlxDB()
+	// RunRawDB()
+	// RunSqlxDB()
+	RunGormDB()
 
-	// utils.Title("Initialize RawDB")
-	db, err := dblib.InitRawDB(true)
-	must(err)
-	var rawPhone *models.PhoneRaw
-	RunDB[models.PhoneRaw](db, rawPhone)
 }
 
 func RunRawDB() {
@@ -239,38 +237,45 @@ func RunSqlxDB() {
 	// endregion
 }
 
-func RunDB[T models.IPhone](db dblib.IPhoneDB[T], phone *T) {
+func RunGormDB() {
+	var phone *models.PhoneGorm
 
 	// region Initialize DB
+	utils.Title("Initialize GormDB")
+	db, err := dblib.InitGormDB(true)
+	must(err)
+	fmt.Printf("db: %v\n", db)
+
+	phoneDB := db.(*dblib.GormDB)
 	defer func() {
 		utils.Title("Closing DB")
-		err := db.Close()
+		err := phoneDB.Close()
 		must(err)
 	}()
 	// endregion
 
 	// region Seed DB
-	err := db.Seed(seedData)
+	err = phoneDB.Seed(seedData)
 	must(err)
 	// endregion
 
 	// region Get By ID
 	id := 2
-	phone, err = db.Get(id)
+	phone, err = phoneDB.Get(id)
 	must(err)
-	logger.Infof("Phone for id %d: %#v\n", id, phone)
+	logger.Infof("Phone for id %d: %#v\n", id, phone.String())
 	// endregion
 
 	// region Search
 	searchNumber := func(phoneNumberToFind string) {
-		phone, err := db.FindPhone(phoneNumberToFind)
+		phone, err := phoneDB.FindPhone(phoneNumberToFind)
 		if _, ok := err.(*dblib.NoRecordFoundError); ok {
 			logger.Warnf("No record found for %s", phoneNumberToFind)
 		} else {
 			must(err)
 		}
 		if phone != nil {
-			logger.Infof("Found phone: %#v", phone)
+			logger.Infof("Found phone: %#v", phone.String())
 		}
 	}
 	testNumbers := []string{
@@ -284,49 +289,49 @@ func RunDB[T models.IPhone](db dblib.IPhoneDB[T], phone *T) {
 	// endregion
 
 	// region All
-	allPhones, err := db.All()
+	allPhones, err := phoneDB.All()
 	must(err)
 	for _, p := range allPhones {
-		logger.Infof("phone: %#v", p)
+		logger.Infof("phone: %#v", p.String())
 	}
 	// endregion
 
 	// normalize and update phone numbers
 	utils.Title("Normalize and update phone numbers")
-
 	for _, p := range allPhones {
-		normalizedNumber := normalizer.NormalizePhoneNumber(p.GetNumber())
-		if p.GetNumber() == normalizedNumber {
-			logger.Infof("Phone number %s is already normalized", p.GetNumber())
+		normalizedNumber := normalizer.NormalizePhoneNumber(p.Number)
+		if p.Number == normalizedNumber {
+			logger.Infof("Phone number %s is already normalized", p.Number)
 			continue
 		}
 
-		logger.Infof("normalizing %#v to %s", p, normalizedNumber)
-		existingPhones, err := db.FindPhones(normalizedNumber)
+		logger.Infof("normalizing %#v to %s", p.String(), normalizedNumber)
+		existingPhones, err := phoneDB.FindPhones(normalizedNumber)
 		must(err)
 		if len(existingPhones) > 0 {
-			logger.Warnf("%d Phone numbers already exists with id %d and number %s", len(existingPhones), p.GetID(), normalizedNumber)
+			logger.Warnf("%d Phone numbers already exists with id %d and number %s", len(existingPhones), p.ID, normalizedNumber)
 			for _, existingPhone := range existingPhones {
-				err := db.DeletePhone(existingPhone.GetID())
+				err := phoneDB.DeletePhone(int(existingPhone.ID))
 				if err != nil {
 					logger.Errorf("Error deleting phone: %#v", err)
 					continue
 				}
-				logger.Warnf("Deleted phone: %#v", existingPhone)
+				logger.Warnf("Deleted phone: %#v", existingPhone.String())
 			}
 		}
 
-		p.SetNumber(normalizedNumber)
-		err = db.UpdatePhone(&p)
+		p.Number = normalizedNumber
+		err = phoneDB.UpdatePhone(&p)
 		must(err)
-		logger.Infof("Updated phone: %#v\n", &p)
+		logger.Infof("Updated phone: %#v\n", p.String())
 	}
 
 	// region All
-	allPhones, err = db.All()
+	allPhones, err = phoneDB.All()
 	must(err)
 	for _, p := range allPhones {
-		logger.Infof("phone: %#v", p)
+		logger.Infof("phone: %#v", p.String())
 	}
 	// endregion
+
 }

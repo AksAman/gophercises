@@ -1,5 +1,11 @@
 package models
 
+import (
+	"fmt"
+
+	"gorm.io/gorm"
+)
+
 type IPhone interface {
 	GetNumber() string
 	SetNumber(string)
@@ -29,6 +35,10 @@ func (p *PhoneRaw) GetID() int {
 	return p.ID
 }
 
+func (p *PhoneRaw) String() string {
+	return fmt.Sprintf("PhoneRaw: %d %s", p.ID, p.Number)
+}
+
 type PhoneSqlx struct {
 	ID int
 	Phone
@@ -46,4 +56,17 @@ func (p *PhoneSqlx) SetNumber(number string) {
 
 func (p *PhoneSqlx) GetID() int {
 	return p.ID
+}
+
+func (p *PhoneSqlx) String() string {
+	return fmt.Sprintf("PhoneSqlx: %v", p.Phone)
+}
+
+type PhoneGorm struct {
+	gorm.Model
+	Phone
+}
+
+func (p *PhoneGorm) String() string {
+	return fmt.Sprintf("PhoneGorm: %d %s", p.ID, p.Number)
 }
