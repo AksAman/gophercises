@@ -59,7 +59,7 @@ func (p *PhoneSqlx) GetID() int {
 }
 
 func (p *PhoneSqlx) String() string {
-	return fmt.Sprintf("PhoneSqlx: %v", p.Phone)
+	return fmt.Sprintf("PhoneSqlx: %d %s", p.ID, p.Number)
 }
 
 type PhoneGorm struct {

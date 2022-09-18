@@ -35,8 +35,8 @@ var seedData = []string{
 }
 
 func main() {
-	// RunRawDB()
-	// RunSqlxDB()
+	RunRawDB()
+	RunSqlxDB()
 	RunGormDB()
 
 }
@@ -67,7 +67,7 @@ func RunRawDB() {
 	id := 2
 	phone, err = phoneDB.Get(id)
 	must(err)
-	logger.Infof("Phone for id %d: %#v\n", id, phone)
+	logger.Infof("Phone for id %d: %v\n", id, phone.String())
 	// endregion
 
 	// region Search
@@ -79,7 +79,7 @@ func RunRawDB() {
 			must(err)
 		}
 		if phone != nil {
-			logger.Infof("Found phone: %#v", phone)
+			logger.Infof("Found phone: %v", phone.String())
 		}
 	}
 	testNumbers := []string{
@@ -96,7 +96,7 @@ func RunRawDB() {
 	allPhones, err := phoneDB.All()
 	must(err)
 	for _, p := range allPhones {
-		logger.Infof("phone: %#v", p)
+		logger.Infof("phone: %#v", p.String())
 	}
 	// endregion
 
@@ -109,7 +109,7 @@ func RunRawDB() {
 			continue
 		}
 
-		logger.Infof("normalizing %#v to %s", p, normalizedNumber)
+		logger.Infof("normalizing %v to %s", p.String(), normalizedNumber)
 		existingPhones, err := phoneDB.FindPhones(normalizedNumber)
 		must(err)
 		if len(existingPhones) > 0 {
@@ -120,21 +120,21 @@ func RunRawDB() {
 					logger.Errorf("Error deleting phone: %#v", err)
 					continue
 				}
-				logger.Warnf("Deleted phone: %#v", existingPhone)
+				logger.Warnf("Deleted phone: %v", existingPhone.String())
 			}
 		}
 
 		p.Number = normalizedNumber
 		err = phoneDB.UpdatePhone(&p)
 		must(err)
-		logger.Infof("Updated phone: %#v\n", &p)
+		logger.Infof("Updated phone: %v\n", p.String())
 	}
 
 	// region All
 	allPhones, err = phoneDB.All()
 	must(err)
 	for _, p := range allPhones {
-		logger.Infof("phone: %#v", p)
+		logger.Infof("phone: %v", p.String())
 	}
 	// endregion
 }
@@ -165,7 +165,7 @@ func RunSqlxDB() {
 	id := 2
 	phone, err = phoneDB.Get(id)
 	must(err)
-	logger.Infof("Phone for id %d: %#v\n", id, phone)
+	logger.Infof("Phone for id %d: %v\n", id, phone.String())
 	// endregion
 
 	// region Search
@@ -177,7 +177,7 @@ func RunSqlxDB() {
 			must(err)
 		}
 		if phone != nil {
-			logger.Infof("Found phone: %#v", phone)
+			logger.Infof("Found phone: %v", phone.String())
 		}
 	}
 	testNumbers := []string{
@@ -194,7 +194,7 @@ func RunSqlxDB() {
 	allPhones, err := phoneDB.All()
 	must(err)
 	for _, p := range allPhones {
-		logger.Infof("phone: %#v", p)
+		logger.Infof("phone: %v", p.String())
 	}
 	// endregion
 
@@ -207,7 +207,7 @@ func RunSqlxDB() {
 			continue
 		}
 
-		logger.Infof("normalizing %#v to %s", p, normalizedNumber)
+		logger.Infof("normalizing %v to %s", p.String(), normalizedNumber)
 		existingPhones, err := phoneDB.FindPhones(normalizedNumber)
 		must(err)
 		if len(existingPhones) > 0 {
@@ -218,21 +218,21 @@ func RunSqlxDB() {
 					logger.Errorf("Error deleting phone: %#v", err)
 					continue
 				}
-				logger.Warnf("Deleted phone: %#v", existingPhone)
+				logger.Warnf("Deleted phone: %v", existingPhone.String())
 			}
 		}
 
 		p.Number = normalizedNumber
 		err = phoneDB.UpdatePhone(&p)
 		must(err)
-		logger.Infof("Updated phone: %#v\n", &p)
+		logger.Infof("Updated phone: %#v\n", p.String())
 	}
 
 	// region All
 	allPhones, err = phoneDB.All()
 	must(err)
 	for _, p := range allPhones {
-		logger.Infof("phone: %#v", p)
+		logger.Infof("phone: %v", p.String())
 	}
 	// endregion
 }
@@ -263,7 +263,7 @@ func RunGormDB() {
 	id := 2
 	phone, err = phoneDB.Get(id)
 	must(err)
-	logger.Infof("Phone for id %d: %#v\n", id, phone.String())
+	logger.Infof("Phone for id %d: %v\n", id, phone.String())
 	// endregion
 
 	// region Search
@@ -275,7 +275,7 @@ func RunGormDB() {
 			must(err)
 		}
 		if phone != nil {
-			logger.Infof("Found phone: %#v", phone.String())
+			logger.Infof("Found phone: %v", phone.String())
 		}
 	}
 	testNumbers := []string{
@@ -292,7 +292,7 @@ func RunGormDB() {
 	allPhones, err := phoneDB.All()
 	must(err)
 	for _, p := range allPhones {
-		logger.Infof("phone: %#v", p.String())
+		logger.Infof("phone: %v", p.String())
 	}
 	// endregion
 
@@ -323,14 +323,14 @@ func RunGormDB() {
 		p.Number = normalizedNumber
 		err = phoneDB.UpdatePhone(&p)
 		must(err)
-		logger.Infof("Updated phone: %#v\n", p.String())
+		logger.Infof("Updated phone: %v\n", p.String())
 	}
 
 	// region All
 	allPhones, err = phoneDB.All()
 	must(err)
 	for _, p := range allPhones {
-		logger.Infof("phone: %#v", p.String())
+		logger.Infof("phone: %v", p.String())
 	}
 	// endregion
 
