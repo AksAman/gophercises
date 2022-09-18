@@ -52,4 +52,5 @@ Original link : [gophercises/phone](https://github.com/gophercises/phone)
 - [x] Learn how to use a minimalistic ORM. Here we'll use the [`gorm`](https://github.com/jinzhu/gorm) package
 
 
-// TODO: Add Tests
+
+- [ ] TODO: Add Tests
