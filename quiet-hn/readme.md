@@ -30,6 +30,18 @@ Original link : [gophercises/quiet_hn](https://github.com/gophercises/quiet_hn)
     ```
     Response: List of story ids as []int
     ```
+    Example:
+    ```javascript
+    [
+        32918301,
+        32916994,
+        32916318,
+        32911299,
+        32913125,
+        ....
+    ]
+    ```
+
 
 1. Story: [/item/{id}.json](https://hacker-news.firebaseio.com/v0/item/8863.json)
 
@@ -54,6 +66,22 @@ Original link : [gophercises/quiet_hn](https://github.com/gophercises/quiet_hn)
     title | The title of the story, poll or job. HTML.
     parts | A list of related pollopts, in display order.
     descendants | In the case of stories or polls, the total comment count.
+    
+    For example, a story: https://hacker-news.firebaseio.com/v0/item/8863.json?print=pretty
+
+    ```javascript
+    {
+        "by" : "dhouston",
+        "descendants" : 71,
+        "id" : 8863,
+        "kids" : [ 8952, 9224, ...],
+        "score" : 111,
+        "time" : 1175714200,
+        "title" : "My YC app: Dropbox - Throw away your USB drive",
+        "type" : "story",
+        "url" : "http://www.getdropbox.com/u/2/screencast.html"
+    }
+    ```
 
 
 ---
