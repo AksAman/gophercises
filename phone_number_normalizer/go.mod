@@ -7,6 +7,7 @@ require (
 	github.com/lib/pq v1.10.7
 	github.com/spf13/viper v1.13.0
 	go.uber.org/zap v1.17.0
+	gorm.io/driver/postgres v1.3.9
 	gorm.io/gorm v1.23.9
 )
 
@@ -40,5 +41,4 @@ require (
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	gorm.io/driver/postgres v1.3.9 // indirect
 )
