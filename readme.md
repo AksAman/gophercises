@@ -5,6 +5,7 @@
 - [urlshortener](https://github.com/AksAman/gophercises/tree/master/urlshortener)
 - [tri-go-task-manager](https://github.com/AksAman/tri-go-task-manager)
 - [Phone Number Normalizer (with Postgres)](https://github.com/AksAman/gophercises/tree/master/phone_number_normalizer)
+- [Quiet Hacker News](https://github.com/AksAman/gophercises/tree/master/quiet-hn)
 
 ## Other Packages
 - [utils](https://github.com/AksAman/gophercises/tree/master/utils)
