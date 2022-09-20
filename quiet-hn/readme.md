@@ -11,7 +11,6 @@ Original link : [gophercises/quiet_hn](https://github.com/gophercises/quiet_hn)
     - [ ] In order to get the stories:
         - Use the [Hacker News API](https://github.com/HackerNews/API)
         - Base Endpoint: https://hacker-news.firebaseio.com/v0
-            - Story: `https://hacker-news.firebaseio.com/v0/item/{id}.json`
     - [ ] Get the stories using goroutines and channels
     - [ ] Stories must retain their original order
     - [ ] Make sure you always get exact N stories, not more, not less (important with concurrency)
@@ -27,9 +26,8 @@ Original link : [gophercises/quiet_hn](https://github.com/gophercises/quiet_hn)
 ### Hacker News Endpoints
 
 1. Top Stories: [/topstories.json](https://hacker-news.firebaseio.com/v0/topstories.json)
-    ```
-    Response: List of story ids as []int
-    ```
+    
+    Response: List of story ids as `[]int`
     Example:
     ```javascript
     [
