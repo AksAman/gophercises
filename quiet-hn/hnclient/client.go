@@ -4,7 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	// "github.com/AksAman/gophercises/quiet-hn/models"
+
+	"github.com/AksAman/gophercises/quietHN/models"
 )
 
 const (
@@ -49,7 +50,25 @@ func (c *Client) GetTopItems() ([]int, error) {
 	return ids, err
 }
 
-// func (c *Client) GetItem(id int) {
-// 	i := models.HNItem{}
-// 	fmt.Print(i)
-// }
+func (c *Client) GetItem(id int) (models.HNItem, error) {
+	c.defaultify()
+
+	var item models.HNItem
+	endpoint := c.getStoryEndpoint(id)
+
+	resp, err := http.Get(endpoint)
+	if err != nil {
+		return item, err
+	}
+	defer resp.Body.Close()
+
+	decoder := json.NewDecoder(resp.Body)
+	err = decoder.Decode(&item)
+
+	if err != nil {
+		return item, err
+	}
+
+	return item, nil
+
+}

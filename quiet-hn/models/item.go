@@ -1,6 +1,9 @@
 package models
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"fmt"
+)
 
 type HNItem struct {
 	ID          int64   `json:"id"`          // The item's unique id.
@@ -25,4 +28,8 @@ func UnmarshalHNItem(data []byte) (HNItem, error) {
 
 func (item *HNItem) Marshal() ([]byte, error) {
 	return json.Marshal(item)
+}
+
+func (item *HNItem) String() string {
+	return fmt.Sprintf("ID: %d, Type: %s, Title: %s, URL: %s", item.ID, item.Type, item.Title, item.URL)
 }
