@@ -1,33 +1,40 @@
 package main
 
 import (
+	"flag"
 	"fmt"
-	"math/rand"
-	"time"
+	"log"
+	"net/http"
 
-	"github.com/AksAman/gophercises/quietHN/hnclient"
+	"github.com/AksAman/gophercises/quietHN/routing"
+	"github.com/AksAman/gophercises/quietHN/views"
+	"github.com/gorilla/mux"
 )
 
+var port int
+
 func init() {
-	rand.Seed(time.Now().UnixNano())
+	flag.IntVar(&port, "port", 8080, "Port to start server on")
+	flag.Parse()
+}
+
+func RunServer() {
+	router := mux.NewRouter()
+	router.NotFoundHandler = views.NotFoundHandler{}
+
+	for _, route := range routing.Routes {
+		router.HandleFunc(route.Pattern, route.Handler)
+	}
+
+	server := http.Server{
+		Addr:    fmt.Sprintf(":%d", port),
+		Handler: router,
+	}
+
+	fmt.Printf("Starting server on %s\n", server.Addr)
+	log.Fatal(server.ListenAndServe())
 }
 
 func main() {
-	client := hnclient.Client{}
-	topStories, err := client.GetTopItems()
-	if err != nil {
-		panic(err)
-	}
-	fmt.Printf("topStories: %v\n", topStories[:50])
-
-	// generate a random id
-	randomIdx := rand.Intn(len(topStories))
-	randomID := topStories[randomIdx]
-
-	item, err := client.GetItem(randomID)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Printf("item:  %v\n", item.String())
-
+	RunServer()
 }

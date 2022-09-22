@@ -6,9 +6,10 @@
     <style>
       body {
         padding: 20px;
+        background-color: #0c0c0c;
       }
       body, a {
-        color: #333;
+        color: #b1b1b1;
         font-family: sans-serif;
       }
       li {
@@ -35,12 +36,15 @@
             {{.Title}}
           </a>
           <span class="host">
-            ({{.Host}})
+            ({{.URL}})
+          </span>
+          <span class="time">
+            (In {{.Latency}})
           </span>
         </li>
       {{end}}
     </ol>
-    <p class="time">This page was rendered in {{.Time}}</p>
+    <p class="time">This page was rendered in {{.Latency}}</p>
     <p class="footer">This page is heavily inspired by <a href="https://speak.sh/posts/quiet-hacker-news">Quiet Hacker News</a> and was adapted for a <a href="https://gophercises.com/exercises/quiet_hn">Gophercises Exercise</a>.</p>
   </body>
 </html>
