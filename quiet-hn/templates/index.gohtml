@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
   <head>
-    <title>Quiet Hacker News</title>
+    <title>{{.Strategy}} Quiet Hacker News</title>
     <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgo=">
     <style>
       body {
@@ -18,8 +18,11 @@
       .host {
         color: #888;
       }
+      .score {
+        color: #777;
+      }
       .time {
-        color: #888;
+        color: #666;
         padding: 10px 0;
       }
       .footer, .footer a {
@@ -28,7 +31,8 @@
     </style>
   </head>
   <body>
-    <h1>Quiet Hacker News</h1>
+    <h1>Quiet Hacker News</h1> 
+    <span>{{.Strategy}}</span>
     <ol>
       {{range .Stories}}
         <li>
@@ -36,15 +40,19 @@
             {{.Title}}
           </a>
           <span class="host">
-            ({{.URL}})
+            ({{.Host}})
+          </span>
+          <span class="score">
+            (Score: {{.Score}})
           </span>
           <span class="time">
-            (In {{.Latency}})
+            (took {{.Latency}})
           </span>
         </li>
       {{end}}
     </ol>
-    <p class="time">This page was rendered in {{.Latency}}</p>
+    <p class="time">This page was rendered in {{.Latency}}, Total Latency : {{.TotalLatency}} </p>
+    <p class="footer">Fetched {{len .Stories}} / {{.RequiredCount}} stories from <a href="https://news.ycombinator.com">Hacker News</a></p>
     <p class="footer">This page is heavily inspired by <a href="https://speak.sh/posts/quiet-hacker-news">Quiet Hacker News</a> and was adapted for a <a href="https://gophercises.com/exercises/quiet_hn">Gophercises Exercise</a>.</p>
   </body>
 </html>

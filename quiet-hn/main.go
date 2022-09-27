@@ -1,22 +1,15 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"log"
 	"net/http"
 
 	"github.com/AksAman/gophercises/quietHN/routing"
+	"github.com/AksAman/gophercises/quietHN/settings"
 	"github.com/AksAman/gophercises/quietHN/views"
 	"github.com/gorilla/mux"
 )
-
-var port int
-
-func init() {
-	flag.IntVar(&port, "port", 8080, "Port to start server on")
-	flag.Parse()
-}
 
 func RunServer() {
 	router := mux.NewRouter()
@@ -27,7 +20,7 @@ func RunServer() {
 	}
 
 	server := http.Server{
-		Addr:    fmt.Sprintf(":%d", port),
+		Addr:    fmt.Sprintf(":%d", settings.Settings.Port),
 		Handler: router,
 	}
 
