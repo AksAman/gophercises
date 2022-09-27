@@ -6,18 +6,18 @@ Original link : [gophercises/quiet_hn](https://github.com/gophercises/quiet_hn)
 
 ### Problem statement
 - Writing a program that 
-    - [ ] Creates an HTTP server
-    - [ ] Serves a single page that displays the top N stories from Hacker News
-    - [ ] In order to get the stories:
+    - [x] Creates an HTTP server
+    - [x] Serves a single page that displays the top N stories from Hacker News
+    - [x] In order to get the stories:
         - Use the [Hacker News API](https://github.com/HackerNews/API)
         - Base Endpoint: https://hacker-news.firebaseio.com/v0
-    - [ ] Get the stories using goroutines and channels
-    - [ ] Stories must retain their original order
-    - [ ] Make sure you always get exact N stories, not more, not less (important with concurrency)
-    - [ ] Implements Caching with 
-        - [ ] In-memory cache 
+    - [x] Get the stories using goroutines and channels
+    - [x] Stories must retain their original order
+    - [x] Make sure you always get exact N stories, not more, not less (important with concurrency)
+    - [-] Implements Caching with 
+        - [x] In-memory cache 
         - [ ] Redis
-    - [ ] Caching should consider race conditions
+    - [x] Caching should consider race conditions
     - [ ] Implement background cache updating
     - [ ] Implement Rate-Limiting using channels
 
