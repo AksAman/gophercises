@@ -19,6 +19,8 @@ Original link : [gophercises/quiet_hn](https://github.com/gophercises/quiet_hn)
         - [ ] Redis
     - [x] Caching should consider race conditions
     - [ ] Implement background cache updating
+        - [x] In-memory cache 
+        - [ ] Redis
     - [ ] Implement Rate-Limiting using channels
 
 ----

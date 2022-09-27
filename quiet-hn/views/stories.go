@@ -5,12 +5,13 @@ import (
 	"log"
 	"net/http"
 	"sort"
-	"strconv"
+	"strings"
 	"time"
 
 	"github.com/AksAman/gophercises/quietHN/hnclient"
 	"github.com/AksAman/gophercises/quietHN/models"
 	"github.com/AksAman/gophercises/quietHN/settings"
+	"github.com/AksAman/gophercises/quietHN/utils"
 )
 
 type storiesTemplateContext struct {
@@ -27,6 +28,8 @@ type storyChanResult struct {
 	err   error
 }
 
+type storyGetterStrategy func(client *hnclient.Client, ids []int) []*models.HNItem
+
 func (c *storiesTemplateContext) CalculateTotalLatency() {
 	var totalLatency time.Duration
 	for _, story := range c.Stories {
@@ -37,28 +40,49 @@ func (c *storiesTemplateContext) CalculateTotalLatency() {
 
 func Stories(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("\nGETTING STORIES")
-	requiredStoriesCount := settings.Settings.MaxStories
-	queryParams := r.URL.Query()
-	nStoriesParam := queryParams.Get("n")
+
+	requiredStoriesCount := utils.GetQueryParam(r, "n", settings.Settings.MaxStories)
+	if requiredStoriesCount > 0 && requiredStoriesCount > settings.Settings.MaxStories {
+		requiredStoriesCount = settings.Settings.MaxStories
+	}
 
 	getStrategy := getStoriesForIDsAsync
 	strategyName := "Async"
 
-	if queryParams.Get("sync") != "" {
+	if strings.ToLower(utils.GetQueryParam(r, "strategy", "async")) != "async" {
 		getStrategy = getStoriesForIDsSync
 		strategyName = "Sync"
-	}
-
-	if n, err := strconv.Atoi(nStoriesParam); err == nil && n > 0 && n <= settings.Settings.MaxStories {
-		requiredStoriesCount = n
 	}
 
 	start := time.Now()
 
 	// Actual code goes here
-	client := hnclient.Client{}
 
+	stories, err := getStories(requiredStoriesCount, getStrategy)
+	if err != nil {
+		http.Error(w, "Error fetching top stories", http.StatusInternalServerError)
+		return
+	}
+	templateContext := storiesTemplateContext{
+		RequiredCount: requiredStoriesCount,
+		Stories:       stories,
+		Latency:       time.Since(start).Round(time.Nanosecond),
+		Strategy:      strategyName,
+	}
+	templateContext.CalculateTotalLatency()
+
+	err = storyTemplate.Execute(w, templateContext)
+
+	if err != nil {
+		http.Error(w, "Failed to process the template", http.StatusInternalServerError)
+		return
+	}
+
+}
+
+func getStories(requiredStoriesCount int, getStrategy storyGetterStrategy) ([]*models.HNItem, error) {
 	var stories []*models.HNItem
+	client := hnclient.Client{}
 
 	cachedStories := cache.Get()
 	if cachedStories != nil {
@@ -68,13 +92,12 @@ func Stories(w http.ResponseWriter, r *http.Request) {
 			stories = append(stories, cachedStories...)
 		}
 	}
-	currentStartIdx := len(stories)
 
 	if len(stories) < requiredStoriesCount {
+		currentStartIdx := len(stories)
 		ids, err := client.GetTopItems()
 		if err != nil {
-			http.Error(w, "Error fetching top stories", http.StatusInternalServerError)
-			return
+			return nil, err
 		}
 		for len(stories) < requiredStoriesCount {
 			needed := (requiredStoriesCount - len(stories)) * 2
@@ -85,23 +108,11 @@ func Stories(w http.ResponseWriter, r *http.Request) {
 			stories = append(stories, newStories...)
 			currentStartIdx += needed
 		}
+
+		stories = stories[:requiredStoriesCount]
 		cache.Set(stories)
 	}
-	templateContext := storiesTemplateContext{
-		RequiredCount: requiredStoriesCount,
-		Stories:       stories,
-		Latency:       time.Since(start).Round(time.Nanosecond),
-		Strategy:      strategyName,
-	}
-	templateContext.CalculateTotalLatency()
-
-	err := storyTemplate.Execute(w, templateContext)
-
-	if err != nil {
-		http.Error(w, "Failed to process the template", http.StatusInternalServerError)
-		return
-	}
-
+	return stories, nil
 }
 
 func getStoriesForIDsAsync(client *hnclient.Client, ids []int) []*models.HNItem {
