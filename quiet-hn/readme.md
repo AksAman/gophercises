@@ -14,7 +14,7 @@ Original link : [gophercises/quiet_hn](https://github.com/gophercises/quiet_hn)
     - [x] Get the stories using goroutines and channels
     - [x] Stories must retain their original order
     - [x] Make sure you always get exact N stories, not more, not less (important with concurrency)
-    - [-] Implements Caching with 
+    - [ ] Implements Caching with 
         - [x] In-memory cache 
         - [ ] Redis
     - [x] Caching should consider race conditions
