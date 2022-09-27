@@ -24,8 +24,9 @@ func (c *InMemoryCache[T]) SetupTicker(event func()) {
 	c.ticker = time.NewTicker(c.Timeout / 2)
 
 	go func() {
-		for range c.ticker.C {
+		for {
 			event()
+			<-c.ticker.C
 		}
 	}()
 }

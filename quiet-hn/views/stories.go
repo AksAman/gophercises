@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/AksAman/gophercises/quietHN/caching"
 	"github.com/AksAman/gophercises/quietHN/hnclient"
 	"github.com/AksAman/gophercises/quietHN/models"
 	"github.com/AksAman/gophercises/quietHN/settings"
@@ -58,7 +59,7 @@ func Stories(w http.ResponseWriter, r *http.Request) {
 
 	// Actual code goes here
 
-	stories, err := getStories(requiredStoriesCount, getStrategy)
+	stories, err := getStories(requiredStoriesCount, getStrategy, &cache)
 	if err != nil {
 		http.Error(w, "Error fetching top stories", http.StatusInternalServerError)
 		return
@@ -80,7 +81,8 @@ func Stories(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func getStories(requiredStoriesCount int, getStrategy storyGetterStrategy) ([]*models.HNItem, error) {
+func getStories(requiredStoriesCount int, getStrategy storyGetterStrategy, cache caching.Cache[models.HNItem]) ([]*models.HNItem, error) {
+	fmt.Printf("Getting stories count:%d\n", requiredStoriesCount)
 	var stories []*models.HNItem
 	client := hnclient.Client{}
 

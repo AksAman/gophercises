@@ -8,6 +8,7 @@ import (
 	"github.com/AksAman/gophercises/quietHN/caching"
 	"github.com/AksAman/gophercises/quietHN/models"
 	"github.com/AksAman/gophercises/quietHN/settings"
+	"github.com/AksAman/gophercises/quietHN/utils"
 )
 
 var (
@@ -27,10 +28,12 @@ func initCache() {
 	cache.SetupTicker(func() {
 		fmt.Println("Refreshing cache")
 
-		if s := cache.Get(); s == nil {
-			return
-		} else {
-			stories, err := getStories(len(s), getStoriesForIDsAsync)
+		cachedStories := cache.Get()
+		if cachedStories == nil || len(cachedStories) < settings.Settings.MaxStories {
+			existingStoriesCount := len(cachedStories)
+			existingStoriesCount = utils.Clamp(settings.Settings.MaxStories-existingStoriesCount, 0, settings.Settings.MaxStories)
+
+			stories, err := getStories(existingStoriesCount, getStoriesForIDsAsync, &cache)
 			if err != nil {
 				return
 			}
