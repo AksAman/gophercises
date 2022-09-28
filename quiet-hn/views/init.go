@@ -8,6 +8,7 @@ import (
 
 	"github.com/AksAman/gophercises/quietHN/caching"
 	"github.com/AksAman/gophercises/quietHN/models"
+	"github.com/AksAman/gophercises/quietHN/ratelimiter"
 	"github.com/AksAman/gophercises/quietHN/settings"
 	"github.com/AksAman/gophercises/quietHN/utils"
 )
@@ -15,11 +16,31 @@ import (
 var (
 	storyTemplate *template.Template
 	cache         caching.Cache[models.HNItem]
+	rateLimiter   ratelimiter.IRateLimiter
+	counter       uint64
 )
 
 func init() {
 	initTemplates()
 
+	getProperCache()
+	initCache(cache)
+
+	initRateLimiter()
+
+}
+
+func initRateLimiter() {
+	if settings.Settings.RateLimitingType == settings.NormalRateLimting {
+		rateLimiter, _ = ratelimiter.NewRateLimiter(time.Duration(settings.Settings.RateLimitingInterval))
+	} else if settings.Settings.RateLimitingType == settings.BurstyRateLimiting {
+		rateLimiter, _ = ratelimiter.NewBurstyRateLimiter(time.Duration(settings.Settings.RateLimitingInterval), settings.Settings.BurstRateCount)
+	} else {
+		rateLimiter = nil
+	}
+}
+
+func getProperCache() {
 	if settings.Settings.CachingStrategy == settings.MemCacheStrategy {
 		cache = &caching.InMemoryCache[models.HNItem]{Timeout: time.Duration(settings.Settings.Timeout)}
 	} else if settings.Settings.CachingStrategy == settings.RedisCacheStrategy {
@@ -27,8 +48,6 @@ func init() {
 	} else {
 		cache = &caching.NoCache[models.HNItem]{}
 	}
-
-	initCache(cache)
 }
 
 func initCache(cache caching.Cache[models.HNItem]) {

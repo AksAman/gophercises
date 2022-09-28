@@ -24,7 +24,7 @@ Original link : [gophercises/quiet_hn](https://github.com/gophercises/quiet_hn)
     - [x] Implement background cache updating
         - [x] In-memory cache 
         - [x] Redis
-    - [ ] Implement Rate-Limiting using channels
+    - [x] Implement Rate-Limiting using channels
 
 ----
 

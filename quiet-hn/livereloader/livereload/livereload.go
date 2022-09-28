@@ -36,7 +36,7 @@ func StartLiveReloadSocketOnPort(port int) error {
 		for {
 			s := <-sigs
 			fmt.Println("Reloading using", s)
-			conn.WriteMessage(websocket.BinaryMessage, []byte("reload"))
+			conn.WriteMessage(websocket.TextMessage, []byte("reload"))
 		}
 	})
 
@@ -49,6 +49,7 @@ func StartLiveReloadSocketOnPort(port int) error {
 			fmt.Println(err)
 			return
 		}
+		fmt.Println("echo ws")
 
 		for {
 			// Read message from browser

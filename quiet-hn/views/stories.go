@@ -40,6 +40,9 @@ func (c *storiesTemplateContext) CalculateTotalLatency() {
 }
 
 func Stories(w http.ResponseWriter, r *http.Request) {
+	if rateLimiter != nil {
+		rateLimiter.Wait()
+	}
 	fmt.Println("\nGETTING STORIES")
 
 	requiredStoriesCount := utils.GetQueryParam(r, "n", settings.Settings.MaxStories)
