@@ -7,6 +7,9 @@ Original link : [gophercises/quiet_hn](https://github.com/gophercises/quiet_hn)
 ### Problem statement
 - Writing a program that 
     - [x] Creates an HTTP server
+        - [x] Using `net/http`
+        - [ ] Using `gin`
+        - [ ] Using `fiber`
     - [x] Serves a single page that displays the top N stories from Hacker News
     - [x] In order to get the stories:
         - Use the [Hacker News API](https://github.com/HackerNews/API)
@@ -14,13 +17,13 @@ Original link : [gophercises/quiet_hn](https://github.com/gophercises/quiet_hn)
     - [x] Get the stories using goroutines and channels
     - [x] Stories must retain their original order
     - [x] Make sure you always get exact N stories, not more, not less (important with concurrency)
-    - [ ] Implements Caching with 
+    - [x] Implements Caching with 
         - [x] In-memory cache 
-        - [ ] Redis
+        - [x] Redis
     - [x] Caching should consider race conditions
-    - [ ] Implement background cache updating
+    - [x] Implement background cache updating
         - [x] In-memory cache 
-        - [ ] Redis
+        - [x] Redis
     - [ ] Implement Rate-Limiting using channels
 
 ----
@@ -86,11 +89,11 @@ Original link : [gophercises/quiet_hn](https://github.com/gophercises/quiet_hn)
 
 ---
 ### Learning Outcomes
-- [ ] HTTP in Go
-- [ ] Templates in Go
-- [ ] Concurrency
-- [ ] Channels
-- [ ] Goroutines
-- [ ] Caching
-- [ ] Redis in Go
+- [x] HTTP in Go
+- [x] Templates in Go
+- [x] Concurrency
+- [x] Channels
+- [x] Goroutines
+- [x] Caching
+- [x] Redis in Go
 - [ ] Rate-limiting

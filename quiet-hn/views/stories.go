@@ -59,7 +59,7 @@ func Stories(w http.ResponseWriter, r *http.Request) {
 
 	// Actual code goes here
 
-	stories, err := getStories(requiredStoriesCount, getStrategy, &cache)
+	stories, err := getStories(requiredStoriesCount, getStrategy, cache)
 	if err != nil {
 		http.Error(w, "Error fetching top stories", http.StatusInternalServerError)
 		return

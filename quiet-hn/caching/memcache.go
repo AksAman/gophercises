@@ -16,8 +16,15 @@ type InMemoryCache[T CacheItem] struct {
 	ticker *time.Ticker
 }
 
-func (c *InMemoryCache[T]) Init() {
+func (c *InMemoryCache[T]) ToString() string {
+	return "InMemoryCache"
+}
+
+func (c *InMemoryCache[T]) Init() error {
 	c.mutex = &sync.Mutex{}
+
+	fmt.Println("InMemoryCache initialized")
+	return nil
 }
 
 func (c *InMemoryCache[T]) SetupTicker(event func()) {
@@ -35,7 +42,7 @@ func (c *InMemoryCache[T]) IsExpired() bool {
 	return time.Now().After(c.expiry)
 }
 
-func (c *InMemoryCache[T]) Set(items []*T) {
+func (c *InMemoryCache[T]) Set(items []*T) error {
 	c.mutex.Lock()
 	defer func() {
 		c.mutex.Unlock()
@@ -45,6 +52,7 @@ func (c *InMemoryCache[T]) Set(items []*T) {
 	c.items = items
 
 	c.expiry = time.Now().Add(c.Timeout)
+	return nil
 }
 
 func (c *InMemoryCache[T]) Get() []*T {

@@ -4,8 +4,10 @@ type CacheItem interface {
 }
 
 type Cache[T CacheItem] interface {
-	Init()
+	Init() error
 	IsExpired() bool
 	Get() []*T
-	Set([]*T)
+	Set([]*T) error
+	SetupTicker(func())
+	ToString() string
 }
