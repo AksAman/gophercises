@@ -2,28 +2,23 @@ package main
 
 import (
 	"fmt"
-	"log"
 
 	"github.com/AksAman/gophercises/quietHN/middlewares"
 	"github.com/AksAman/gophercises/quietHN/routing"
 	"github.com/AksAman/gophercises/quietHN/settings"
-	"github.com/AksAman/gophercises/quietHN/views"
-	"github.com/gofiber/fiber/v2"
+	"github.com/gin-gonic/gin"
 )
 
 func RunServer() {
+	gin.SetMode(gin.ReleaseMode)
 
-	app := fiber.New(
-		fiber.Config{
-			Views: views.GetFiberViews(),
-		},
-	)
-	middlewares.SetupFiberMiddlewares(app)
-
-	routing.SetupFiberRoutes(app)
+	app := gin.Default()
+	app.LoadHTMLGlob("templates/*")
+	middlewares.SetupGinMiddlewares(app)
+	routing.SetupGinRoutes(app)
 
 	addr := fmt.Sprintf(":%d", settings.Settings.Port)
-	log.Fatal(app.Listen(addr))
+	app.Run(addr)
 }
 
 func main() {

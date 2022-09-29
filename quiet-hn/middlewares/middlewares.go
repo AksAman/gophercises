@@ -5,7 +5,7 @@ import (
 
 	"github.com/AksAman/gophercises/quietHN/ratelimiter"
 	"github.com/AksAman/gophercises/quietHN/settings"
-	"github.com/gofiber/fiber/v2"
+	"github.com/gin-gonic/gin"
 )
 
 var (
@@ -26,15 +26,16 @@ func initRateLimiter() {
 	}
 }
 
-func SetupFiberMiddlewares(app *fiber.App) {
+func SetupGinMiddlewares(app *gin.Engine) {
+	app.Use(rateLimiterMiddleware())
+}
 
-	app.Use(func(c *fiber.Ctx) error {
-		c.Set("Server", "A Go Web Server")
-
+func rateLimiterMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
 		if rateLimiter != nil {
 			rateLimiter.Wait()
 		}
 
-		return c.Next()
-	})
+		c.Next()
+	}
 }

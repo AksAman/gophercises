@@ -2,10 +2,10 @@ package routing
 
 import (
 	"github.com/AksAman/gophercises/quietHN/controllers"
-	"github.com/gofiber/fiber/v2"
+	"github.com/gin-gonic/gin"
 )
 
-func SetupFiberRoutes(app *fiber.App) {
-	app.Get("/", controllers.Home)
-	app.Get("/stories", controllers.GetStories)
+func SetupGinRoutes(app *gin.Engine) {
+	app.GET("/", controllers.Home)
+	app.GET("/stories", controllers.GetStories)
 }

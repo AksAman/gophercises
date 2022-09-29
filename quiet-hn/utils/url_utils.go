@@ -3,10 +3,10 @@ package utils
 import (
 	"strconv"
 
-	"github.com/gofiber/fiber/v2"
+	"github.com/gin-gonic/gin"
 )
 
-func GetQueryParam[T comparable](c *fiber.Ctx, key string, defaultValue T) T {
+func GetQueryParam[T comparable](c *gin.Context, key string, defaultValue T) T {
 
 	value := c.Query(key)
 
