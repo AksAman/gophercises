@@ -1,6 +1,7 @@
 package settings
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"time"
@@ -9,7 +10,7 @@ import (
 type GlobalSettings struct {
 	Port                 int
 	MaxStories           int
-	Timeout              time.Duration
+	CacheTimeout         time.Duration
 	RedisHost            string
 	RedisPort            int
 	RedisAddr            string
@@ -18,6 +19,11 @@ type GlobalSettings struct {
 	RateLimitingType     string
 	RateLimitingInterval time.Duration
 	BurstRateCount       int
+}
+
+func (s *GlobalSettings) ToJSON() string {
+	json, _ := json.MarshalIndent(s, "", "  ")
+	return string(json)
 }
 
 var Settings *GlobalSettings
@@ -38,7 +44,7 @@ func init() {
 	Settings = &GlobalSettings{
 		Port:                 8080,
 		MaxStories:           30,
-		Timeout:              time.Second * 10,
+		CacheTimeout:         time.Second * 10,
 		RedisHost:            "localhost",
 		RedisPort:            6379,
 		RedisPassword:        "",
@@ -50,7 +56,7 @@ func init() {
 
 	flag.IntVar(&Settings.Port, "port", Settings.Port, "Port to start server on")
 	flag.IntVar(&Settings.MaxStories, "n", Settings.MaxStories, "Number of stories to fetch")
-	flag.DurationVar(&Settings.Timeout, "timeout", Settings.Timeout, "Timeout for cache stories")
+	flag.DurationVar(&Settings.CacheTimeout, "cache-timeout", Settings.CacheTimeout, "Timeout for cache stories")
 	flag.StringVar(&Settings.RedisHost, "redis-host", Settings.RedisHost, "Redis host")
 	flag.IntVar(&Settings.RedisPort, "redis-port", Settings.RedisPort, "Redis port")
 	flag.StringVar(&Settings.RedisPassword, "redis-password", Settings.RedisPassword, "Redis password")
@@ -82,4 +88,6 @@ func init() {
 	flag.Parse()
 
 	Settings.RedisAddr = fmt.Sprintf("%s:%d", Settings.RedisHost, Settings.RedisPort)
+
+	fmt.Printf("Settings: %v\n", Settings.ToJSON())
 }

@@ -12,12 +12,11 @@ import (
 )
 
 func RunServer() {
-
 	app := fiber.New(
 		fiber.Config{
 			Views:        views.GetFiberViews(),
 			ErrorHandler: controllers.ErrorHandler,
-			Prefork:      true,
+			Prefork:      false,
 		},
 	)
 
