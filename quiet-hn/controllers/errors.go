@@ -1,13 +1,22 @@
 package controllers
 
 import (
-	"fmt"
-	"net/http"
+	"github.com/AksAman/gophercises/quietHN/views"
+	"github.com/gofiber/fiber/v2"
 )
 
-type NotFoundHandler struct{}
+func ErrorHandler(c *fiber.Ctx, err error) error {
+	statusCode := fiber.StatusInternalServerError
 
-func (h NotFoundHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusNotFound)
-	fmt.Fprintf(w, "Nothing here bruh!")
+	if e, ok := err.(*fiber.Error); ok {
+		statusCode = e.Code
+	}
+
+	err = c.Status(statusCode).Render("error", views.ErrorTemplateContext{StatusCode: statusCode, Message: err.Error()})
+
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
+	}
+
+	return nil
 }

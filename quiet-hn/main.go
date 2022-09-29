@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/AksAman/gophercises/quietHN/middlewares"
+	"github.com/AksAman/gophercises/quietHN/controllers"
 	"github.com/AksAman/gophercises/quietHN/routing"
 	"github.com/AksAman/gophercises/quietHN/settings"
 	"github.com/AksAman/gophercises/quietHN/views"
@@ -15,10 +15,15 @@ func RunServer() {
 
 	app := fiber.New(
 		fiber.Config{
-			Views: views.GetFiberViews(),
+			Views:        views.GetFiberViews(),
+			ErrorHandler: controllers.ErrorHandler,
+			Prefork:      false,
 		},
 	)
-	middlewares.SetupFiberMiddlewares(app)
+
+	app.Static("/", "./static")
+
+	// middlewares.SetupFiberMiddlewares(app)
 
 	routing.SetupFiberRoutes(app)
 

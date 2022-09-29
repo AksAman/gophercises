@@ -28,3 +28,8 @@ func (c *StoriesTemplateContext) CalculateTotalLatency() {
 	}
 	c.TotalLatency = totalLatency
 }
+
+type ErrorTemplateContext struct {
+	StatusCode int
+	Message    string
+}

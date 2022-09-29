@@ -3,7 +3,6 @@ package controllers
 import (
 	"fmt"
 	"log"
-	"net/http"
 	"sort"
 	"strings"
 	"time"
@@ -44,7 +43,7 @@ func GetStories(c *fiber.Ctx) error {
 	stories, err := getStories(requiredStoriesCount, getStrategy, cache)
 	if err != nil {
 		msg := fmt.Sprintf("Error getting stories: %v", err)
-		return c.Status(http.StatusInternalServerError).SendString(msg)
+		return fiber.NewError(fiber.StatusInternalServerError, msg)
 	}
 	templateContext := views.StoriesTemplateContext{
 		RequiredCount: requiredStoriesCount,
