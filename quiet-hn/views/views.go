@@ -1,16 +1,27 @@
 package views
 
 import (
+	"html/template"
+	"io"
 	"time"
 
 	"github.com/AksAman/gophercises/quietHN/models"
-	"github.com/gofiber/template/html"
+	"github.com/labstack/echo/v4"
 )
 
-func GetFiberViews() *html.Engine {
-	templateEngine := html.New("./templates", ".gohtml")
+type EchoTemplate struct {
+	templates *template.Template
+}
 
-	return templateEngine
+func (t *EchoTemplate) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
+	return t.templates.ExecuteTemplate(w, name, data)
+}
+
+func GetEchoTemplateRenderer() *EchoTemplate {
+	templates := template.Must(template.ParseGlob("templates/*.gohtml"))
+	return &EchoTemplate{
+		templates: templates,
+	}
 }
 
 type StoriesTemplateContext struct {

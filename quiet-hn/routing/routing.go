@@ -2,10 +2,10 @@ package routing
 
 import (
 	"github.com/AksAman/gophercises/quietHN/controllers"
-	"github.com/gin-gonic/gin"
+	"github.com/labstack/echo/v4"
 )
 
-func SetupGinRoutes(app *gin.Engine) {
+func SetupRoutes(app *echo.Echo) {
 	app.GET("/", controllers.Home)
 	app.GET("/stories", controllers.GetStories)
 }

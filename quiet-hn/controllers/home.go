@@ -4,16 +4,16 @@ import (
 	"net/http"
 	"sync/atomic"
 
-	"github.com/gin-gonic/gin"
+	"github.com/labstack/echo/v4"
 )
 
-func Home(c *gin.Context) {
+func Home(c echo.Context) error {
 	atomic.AddUint64(&counter, 1)
 
 	// set headers
-	c.JSON(http.StatusOK, gin.H{
-		"message": "Hello From Fiber Server",
-		"ip":      c.ClientIP(),
+	return c.JSON(http.StatusOK, map[string]any{
+		"message": "Hello From ECHO Server",
+		"ip":      c.RealIP(),
 		"visited": counter,
 	})
 }

@@ -3,12 +3,12 @@ package utils
 import (
 	"strconv"
 
-	"github.com/gin-gonic/gin"
+	"github.com/labstack/echo/v4"
 )
 
-func GetQueryParam[T comparable](c *gin.Context, key string, defaultValue T) T {
+func GetQueryParam[T comparable](c echo.Context, key string, defaultValue T) T {
 
-	value := c.Query(key)
+	value := c.QueryParam(key)
 
 	if value == "" {
 		return defaultValue

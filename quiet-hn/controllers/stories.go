@@ -14,7 +14,7 @@ import (
 	"github.com/AksAman/gophercises/quietHN/settings"
 	"github.com/AksAman/gophercises/quietHN/utils"
 	"github.com/AksAman/gophercises/quietHN/views"
-	"github.com/gin-gonic/gin"
+	"github.com/labstack/echo/v4"
 )
 
 type storyChanResult struct {
@@ -25,7 +25,7 @@ type storyChanResult struct {
 
 type storyGetterStrategy func(client *hnclient.Client, ids []int) []*models.HNItem
 
-func GetStories(c *gin.Context) {
+func GetStories(c echo.Context) error {
 	requiredStoriesCount := utils.GetQueryParam(c, "n", settings.Settings.MaxStories)
 	if requiredStoriesCount > 0 && requiredStoriesCount > settings.Settings.MaxStories {
 		requiredStoriesCount = settings.Settings.MaxStories
@@ -44,8 +44,7 @@ func GetStories(c *gin.Context) {
 	stories, err := getStories(requiredStoriesCount, getStrategy, cache)
 	if err != nil {
 		msg := fmt.Sprintf("Error getting stories: %v", err)
-		c.String(http.StatusInternalServerError, msg)
-		return
+		return c.String(http.StatusInternalServerError, msg)
 	}
 	templateContext := views.StoriesTemplateContext{
 		RequiredCount: requiredStoriesCount,
@@ -55,7 +54,7 @@ func GetStories(c *gin.Context) {
 	}
 	templateContext.CalculateTotalLatency()
 
-	c.HTML(http.StatusOK, "stories.gohtml", templateContext)
+	return c.Render(http.StatusOK, "stories.gohtml", templateContext)
 }
 
 func getStories(requiredStoriesCount int, getStrategy storyGetterStrategy, cache caching.Cache[models.HNItem]) ([]*models.HNItem, error) {

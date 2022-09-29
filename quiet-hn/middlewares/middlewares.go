@@ -5,7 +5,7 @@ import (
 
 	"github.com/AksAman/gophercises/quietHN/ratelimiter"
 	"github.com/AksAman/gophercises/quietHN/settings"
-	"github.com/gin-gonic/gin"
+	"github.com/labstack/echo/v4"
 )
 
 var (
@@ -26,16 +26,16 @@ func initRateLimiter() {
 	}
 }
 
-func SetupGinMiddlewares(app *gin.Engine) {
-	app.Use(rateLimiterMiddleware())
+func SetupEchoMiddlewares(app *echo.Echo) {
+	app.Use(rateLimiterMiddleware)
 }
 
-func rateLimiterMiddleware() gin.HandlerFunc {
-	return func(c *gin.Context) {
+func rateLimiterMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
 		if rateLimiter != nil {
 			rateLimiter.Wait()
 		}
 
-		c.Next()
+		return next(c)
 	}
 }
