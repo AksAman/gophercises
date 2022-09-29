@@ -8,8 +8,9 @@ Original link : [gophercises/quiet_hn](https://github.com/gophercises/quiet_hn)
 - Writing a program that 
     - [x] Creates an HTTP server
         - [x] Using `net/http`
-        - [ ] Using `gin`
-        - [ ] Using `fiber`
+        - [x] Using `fiber`
+        - [x] Using `gin`
+        - [x] Using `echo`
     - [x] Serves a single page that displays the top N stories from Hacker News
     - [x] In order to get the stories:
         - Use the [Hacker News API](https://github.com/HackerNews/API)
@@ -96,4 +97,4 @@ Original link : [gophercises/quiet_hn](https://github.com/gophercises/quiet_hn)
 - [x] Goroutines
 - [x] Caching
 - [x] Redis in Go
-- [ ] Rate-limiting
+- [x] Rate-limiting
