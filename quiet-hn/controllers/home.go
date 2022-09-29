@@ -16,7 +16,18 @@ func Home(w http.ResponseWriter, r *http.Request) {
 	}
 	atomic.AddUint64(&counter, 1)
 
-	w.Header().Set("Content-Type", "text/html")
-	fmt.Fprintf(w, "Hello %v, visited %d times, time: %v", r.RemoteAddr, counter, time.Since(t).Round(time.Second))
+	w.Header().Set("Content-Type", "application/json")
 	t = time.Now()
+
+	fmt.Fprintf(w,
+		`
+		{
+			"message": "Hello from net/http",
+			"ip": "%v",
+			"visited": %d
+		}
+		`,
+		r.RemoteAddr,
+		counter,
+	)
 }
