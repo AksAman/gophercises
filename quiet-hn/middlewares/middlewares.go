@@ -6,6 +6,7 @@ import (
 	"github.com/AksAman/gophercises/quietHN/ratelimiter"
 	"github.com/AksAman/gophercises/quietHN/settings"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/monitor"
 )
 
 var (
@@ -26,15 +27,19 @@ func initRateLimiter() {
 	}
 }
 
-func SetupFiberMiddlewares(app *fiber.App) {
-
-	app.Use(func(c *fiber.Ctx) error {
-		c.Set("Server", "A Go Web Server")
-
+func GetRateLimiterMiddleware() fiber.Handler {
+	return func(c *fiber.Ctx) error {
 		if rateLimiter != nil {
 			rateLimiter.Wait()
 		}
-
 		return c.Next()
-	})
+	}
+}
+
+func GetMonitorMiddleware() fiber.Handler {
+	return monitor.New(
+		monitor.Config{
+			Title: "Monitor for QuietHN",
+		},
+	)
 }
