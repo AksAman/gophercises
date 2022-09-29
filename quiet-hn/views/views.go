@@ -4,14 +4,7 @@ import (
 	"time"
 
 	"github.com/AksAman/gophercises/quietHN/models"
-	"github.com/gofiber/template/html"
 )
-
-func GetFiberViews() *html.Engine {
-	templateEngine := html.New("./templates", ".gohtml")
-
-	return templateEngine
-}
 
 type StoriesTemplateContext struct {
 	Strategy      string
