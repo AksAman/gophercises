@@ -3,7 +3,7 @@ package routing
 import (
 	"net/http"
 
-	"github.com/AksAman/gophercises/quietHN/views"
+	"github.com/AksAman/gophercises/quietHN/controllers"
 	"github.com/gorilla/mux"
 )
 
@@ -14,13 +14,13 @@ type URLRoute struct {
 }
 
 var Routes = []URLRoute{
-	{Pattern: "/", Handler: views.Home, Methods: []string{"GET"}},
-	{Pattern: "/stories/", Handler: views.Stories, Methods: []string{"GET"}},
+	{Pattern: "/", Handler: controllers.Home, Methods: []string{"GET"}},
+	{Pattern: "/stories/", Handler: controllers.Stories, Methods: []string{"GET"}},
 }
 
 func NewRouter() *mux.Router {
 	router := mux.NewRouter()
-	router.NotFoundHandler = views.NotFoundHandler{}
+	router.NotFoundHandler = controllers.NotFoundHandler{}
 
 	for _, route := range Routes {
 		router.HandleFunc(route.Pattern, route.Handler).Methods(route.Methods...)
