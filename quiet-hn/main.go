@@ -3,20 +3,27 @@ package main
 import (
 	"fmt"
 	"log"
-	"net/http"
 
+	"github.com/AksAman/gophercises/quietHN/middlewares"
 	"github.com/AksAman/gophercises/quietHN/routing"
 	"github.com/AksAman/gophercises/quietHN/settings"
+	"github.com/AksAman/gophercises/quietHN/views"
+	"github.com/gofiber/fiber/v2"
 )
 
 func RunServer() {
-	server := http.Server{
-		Addr:    fmt.Sprintf(":%d", settings.Settings.Port),
-		Handler: routing.NewRouter(),
-	}
 
-	fmt.Printf("Starting server on %s\n", server.Addr)
-	log.Fatal(server.ListenAndServe())
+	app := fiber.New(
+		fiber.Config{
+			Views: views.GetFiberViews(),
+		},
+	)
+	middlewares.SetupFiberMiddlewares(app)
+
+	routing.SetupFiberRoutes(app)
+
+	addr := fmt.Sprintf(":%d", settings.Settings.Port)
+	log.Fatal(app.Listen(addr))
 }
 
 func main() {

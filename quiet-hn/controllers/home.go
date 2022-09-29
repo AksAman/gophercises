@@ -1,22 +1,18 @@
 package controllers
 
 import (
-	"fmt"
-	"net/http"
 	"sync/atomic"
-	"time"
+
+	"github.com/gofiber/fiber/v2"
 )
 
-var t time.Time = time.Now()
-
-func Home(w http.ResponseWriter, r *http.Request) {
-	if rateLimiter != nil {
-		rateLimiter.Wait()
-		// fmt.Println("\t--------- got time from rate limiter ---------", t)
-	}
+func Home(c *fiber.Ctx) error {
 	atomic.AddUint64(&counter, 1)
 
-	w.Header().Set("Content-Type", "text/html")
-	fmt.Fprintf(w, "Hello %v, visited %d times, time: %v", r.RemoteAddr, counter, time.Since(t).Round(time.Second))
-	t = time.Now()
+	// set headers
+	return c.JSON(fiber.Map{
+		"message": "Hello From Fiber Server",
+		"ip":      c.IP(),
+		"visited": counter,
+	})
 }

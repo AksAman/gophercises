@@ -1,14 +1,14 @@
 package utils
 
 import (
-	"net/http"
 	"strconv"
+
+	"github.com/gofiber/fiber/v2"
 )
 
-func GetQueryParam[T comparable](r *http.Request, key string, defaultValue T) T {
-	params := r.URL.Query()
+func GetQueryParam[T comparable](c *fiber.Ctx, key string, defaultValue T) T {
 
-	value := params.Get(key)
+	value := c.Query(key)
 
 	if value == "" {
 		return defaultValue

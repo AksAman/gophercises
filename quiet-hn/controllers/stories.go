@@ -13,15 +13,9 @@ import (
 	"github.com/AksAman/gophercises/quietHN/models"
 	"github.com/AksAman/gophercises/quietHN/settings"
 	"github.com/AksAman/gophercises/quietHN/utils"
+	"github.com/AksAman/gophercises/quietHN/views"
+	"github.com/gofiber/fiber/v2"
 )
-
-type storiesTemplateContext struct {
-	Strategy      string
-	RequiredCount int
-	Stories       []*models.HNItem
-	Latency       time.Duration
-	TotalLatency  time.Duration
-}
 
 type storyChanResult struct {
 	index int
@@ -31,21 +25,8 @@ type storyChanResult struct {
 
 type storyGetterStrategy func(client *hnclient.Client, ids []int) []*models.HNItem
 
-func (c *storiesTemplateContext) CalculateTotalLatency() {
-	var totalLatency time.Duration
-	for _, story := range c.Stories {
-		totalLatency += story.Latency
-	}
-	c.TotalLatency = totalLatency
-}
-
-func Stories(w http.ResponseWriter, r *http.Request) {
-	if rateLimiter != nil {
-		rateLimiter.Wait()
-	}
-	fmt.Println("\nGETTING STORIES")
-
-	requiredStoriesCount := utils.GetQueryParam(r, "n", settings.Settings.MaxStories)
+func GetStories(c *fiber.Ctx) error {
+	requiredStoriesCount := utils.GetQueryParam(c, "n", settings.Settings.MaxStories)
 	if requiredStoriesCount > 0 && requiredStoriesCount > settings.Settings.MaxStories {
 		requiredStoriesCount = settings.Settings.MaxStories
 	}
@@ -53,21 +34,19 @@ func Stories(w http.ResponseWriter, r *http.Request) {
 	getStrategy := getStoriesForIDsAsync
 	strategyName := "Async"
 
-	if strings.ToLower(utils.GetQueryParam(r, "strategy", "async")) != "async" {
+	if strings.ToLower(utils.GetQueryParam(c, "strategy", "async")) != "async" {
 		getStrategy = getStoriesForIDsSync
 		strategyName = "Sync"
 	}
 
 	start := time.Now()
 
-	// Actual code goes here
-
 	stories, err := getStories(requiredStoriesCount, getStrategy, cache)
 	if err != nil {
-		http.Error(w, "Error fetching top stories", http.StatusInternalServerError)
-		return
+		msg := fmt.Sprintf("Error getting stories: %v", err)
+		return c.Status(http.StatusInternalServerError).SendString(msg)
 	}
-	templateContext := storiesTemplateContext{
+	templateContext := views.StoriesTemplateContext{
 		RequiredCount: requiredStoriesCount,
 		Stories:       stories,
 		Latency:       time.Since(start).Round(time.Nanosecond),
@@ -75,13 +54,7 @@ func Stories(w http.ResponseWriter, r *http.Request) {
 	}
 	templateContext.CalculateTotalLatency()
 
-	err = storyTemplate.Execute(w, templateContext)
-
-	if err != nil {
-		http.Error(w, "Failed to process the template", http.StatusInternalServerError)
-		return
-	}
-
+	return c.Render("stories", templateContext)
 }
 
 func getStories(requiredStoriesCount int, getStrategy storyGetterStrategy, cache caching.Cache[models.HNItem]) ([]*models.HNItem, error) {

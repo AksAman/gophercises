@@ -2,42 +2,25 @@ package controllers
 
 import (
 	"fmt"
-	"html/template"
 	"log"
 	"time"
 
 	"github.com/AksAman/gophercises/quietHN/caching"
 	"github.com/AksAman/gophercises/quietHN/models"
-	"github.com/AksAman/gophercises/quietHN/ratelimiter"
 	"github.com/AksAman/gophercises/quietHN/settings"
 	"github.com/AksAman/gophercises/quietHN/utils"
 )
 
 var (
-	storyTemplate *template.Template
-	cache         caching.Cache[models.HNItem]
-	rateLimiter   ratelimiter.IRateLimiter
-	counter       uint64
+	cache   caching.Cache[models.HNItem]
+	counter uint64
 )
 
 func init() {
-	initTemplates()
 
 	getProperCache()
 	initCache(cache)
 
-	initRateLimiter()
-
-}
-
-func initRateLimiter() {
-	if settings.Settings.RateLimitingType == settings.NormalRateLimting {
-		rateLimiter, _ = ratelimiter.NewRateLimiter(time.Duration(settings.Settings.RateLimitingInterval))
-	} else if settings.Settings.RateLimitingType == settings.BurstyRateLimiting {
-		rateLimiter, _ = ratelimiter.NewBurstyRateLimiter(time.Duration(settings.Settings.RateLimitingInterval), settings.Settings.BurstRateCount)
-	} else {
-		rateLimiter = nil
-	}
 }
 
 func getProperCache() {
@@ -74,8 +57,4 @@ func initCache(cache caching.Cache[models.HNItem]) {
 		}
 
 	})
-}
-
-func initTemplates() {
-	storyTemplate = template.Must(template.ParseFiles("templates/index.gohtml"))
 }
