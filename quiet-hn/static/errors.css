@@ -22,3 +22,7 @@ body {
 .danger {
     color: #ff0000;
 }
+
+a {
+    color: rgb(0, 192, 246);
+}

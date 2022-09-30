@@ -1,6 +1,7 @@
 package views
 
 import (
+	"html/template"
 	"time"
 
 	"github.com/AksAman/gophercises/quietHN/models"
@@ -32,6 +33,6 @@ func (c *StoriesTemplateContext) CalculateTotalLatency() {
 type ErrorTemplateContext struct {
 	StatusCode int
 	Message    string
-	StackTrace string
+	StackTrace template.HTML
 	Debug      bool
 }
