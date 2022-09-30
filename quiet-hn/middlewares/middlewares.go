@@ -6,7 +6,9 @@ import (
 	"github.com/AksAman/gophercises/quietHN/ratelimiter"
 	"github.com/AksAman/gophercises/quietHN/settings"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/monitor"
+	"github.com/gofiber/fiber/v2/middleware/recover"
 )
 
 var (
@@ -40,6 +42,19 @@ func GetMonitorMiddleware() fiber.Handler {
 	return monitor.New(
 		monitor.Config{
 			Title: "Monitor for QuietHN",
+		},
+	)
+}
+
+func GetRecoveryMiddleware() fiber.Handler {
+	return recover.New()
+}
+
+func GetLoggerMiddleware() fiber.Handler {
+	return logger.New(
+		logger.Config{
+			Format:     "${green}[${time}]${reset} ${cyan}[${ip}]:${port}${reset} - ${method} ${status} ${path} ${latency}\n",
+			TimeFormat: "02-Jan-2006 15:04:05",
 		},
 	)
 }

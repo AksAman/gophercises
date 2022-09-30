@@ -16,11 +16,9 @@ func RunServer() {
 		fiber.Config{
 			Views:        views.GetFiberViews(),
 			ErrorHandler: controllers.ErrorHandler,
-			Prefork:      false,
+			Prefork:      !settings.Settings.Debug,
 		},
 	)
-
-	app.Static("/", "./static")
 
 	routing.SetupFiberRoutes(app)
 

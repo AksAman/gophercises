@@ -8,10 +8,16 @@ import (
 
 func SetupFiberRoutes(app *fiber.App) {
 
+	app.Use(middlewares.GetLoggerMiddleware())
 	app.Use(middlewares.GetRateLimiterMiddleware())
+	app.Use(middlewares.GetRecoveryMiddleware())
 
+	app.Static("/", "./static")
 	app.Get("/", controllers.Home)
 	app.Get("/stories", controllers.GetStories)
+
+	app.Get("/panic", controllers.FakeError)
+	app.Get("/panic-after", controllers.FakeErrorAfter)
 
 	internalRoute := app.Group("/__internal__", func(c *fiber.Ctx) error {
 		c.Set("private", "true")

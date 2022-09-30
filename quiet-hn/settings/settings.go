@@ -8,6 +8,7 @@ import (
 )
 
 type GlobalSettings struct {
+	Debug                bool
 	Port                 int
 	MaxStories           int
 	CacheTimeout         time.Duration
@@ -42,6 +43,7 @@ const (
 
 func init() {
 	Settings = &GlobalSettings{
+		Debug:                false,
 		Port:                 8080,
 		MaxStories:           30,
 		CacheTimeout:         time.Second * 10,
@@ -54,6 +56,7 @@ func init() {
 		BurstRateCount:       5,
 	}
 
+	flag.BoolVar(&Settings.Debug, "debug", Settings.Debug, "Set to false if running in production")
 	flag.IntVar(&Settings.Port, "port", Settings.Port, "Port to start server on")
 	flag.IntVar(&Settings.MaxStories, "n", Settings.MaxStories, "Number of stories to fetch")
 	flag.DurationVar(&Settings.CacheTimeout, "cache-timeout", Settings.CacheTimeout, "Timeout for cache stories")

@@ -1,0 +1,21 @@
+### Home
+GET http://localhost:8080/
+
+
+### Stories
+GET http://localhost:8080/stories
+
+
+
+### Fake Error
+GET http://localhost:8080/panic
+
+
+### Fake Error After
+GET http://localhost:8080/panic-after
+
+
+### True Error
+GET http://localhost:8080/randompage
+
+

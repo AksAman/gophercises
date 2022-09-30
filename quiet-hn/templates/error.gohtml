@@ -17,6 +17,14 @@
         <div class="status-code">
             <h2>{{.Message}}</h2>
         </div>
+
+        {{if .Debug}}
+        <div class="debug">
+            <h3 class="danger">Debug Mode is On</h3>
+            <h4>Stack Trace</h4>
+            <pre>{{.StackTrace}}</pre>
+        </div>
+        {{end}}
     </div>
 </body>
 

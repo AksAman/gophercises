@@ -15,4 +15,5 @@ air -- \
     --redis-password="" \
     --rate-type "none" \
     --rate-burst 5 \
-    --rate-interval 3s
+    --rate-interval 3s \
+    --debug
