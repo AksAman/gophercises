@@ -42,9 +42,9 @@ func initRateLimiter() {
 
 func getProperCache() {
 	if settings.Settings.CachingStrategy == settings.MemCacheStrategy {
-		cache = &caching.InMemoryCache[models.HNItem]{Timeout: time.Duration(settings.Settings.Timeout)}
+		cache = &caching.InMemoryCache[models.HNItem]{Timeout: time.Duration(settings.Settings.CacheTimeout)}
 	} else if settings.Settings.CachingStrategy == settings.RedisCacheStrategy {
-		cache = &caching.RedisCache[models.HNItem]{Timeout: time.Duration(settings.Settings.Timeout), ItemsKey: "stories"}
+		cache = &caching.RedisCache[models.HNItem]{Timeout: time.Duration(settings.Settings.CacheTimeout), ItemsKey: "stories"}
 	} else {
 		cache = &caching.NoCache[models.HNItem]{}
 	}

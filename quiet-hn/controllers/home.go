@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"sync/atomic"
@@ -10,6 +11,7 @@ import (
 var t time.Time = time.Now()
 
 func Home(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("HOME")
 	if rateLimiter != nil {
 		rateLimiter.Wait()
 		// fmt.Println("\t--------- got time from rate limiter ---------", t)
@@ -18,16 +20,19 @@ func Home(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	t = time.Now()
-
-	fmt.Fprintf(w,
-		`
-		{
+	jsonData, err := json.MarshalIndent(
+		map[string]interface{}{
 			"message": "Hello from net/http",
-			"ip": "%v",
-			"visited": %d
-		}
-		`,
-		r.RemoteAddr,
-		counter,
+			"ip":      r.RemoteAddr,
+			"visited": counter,
+		},
+		"",
+		"  ",
 	)
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+
+	w.Write(jsonData)
 }

@@ -26,6 +26,7 @@ Original link : [gophercises/quiet_hn](https://github.com/gophercises/quiet_hn)
         - [x] In-memory cache 
         - [x] Redis
     - [x] Implement Rate-Limiting using channels
+    - [x] Implement Recovery middleware
 
 ----
 
