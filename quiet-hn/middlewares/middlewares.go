@@ -47,7 +47,11 @@ func GetMonitorMiddleware() fiber.Handler {
 }
 
 func GetRecoveryMiddleware() fiber.Handler {
-	return recover.New()
+	return recover.New(
+		recover.Config{
+			// EnableStackTrace: settings.Settings.Debug,
+		},
+	)
 }
 
 func GetLoggerMiddleware() fiber.Handler {

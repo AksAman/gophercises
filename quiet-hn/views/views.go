@@ -31,8 +31,13 @@ func (c *StoriesTemplateContext) CalculateTotalLatency() {
 }
 
 type ErrorTemplateContext struct {
-	StatusCode int
-	Message    string
-	StackTrace template.HTML
-	Debug      bool
+	Path          string
+	Method        string
+	URL           string
+	GolangVersion string
+	ServerTime    string
+	StatusCode    int
+	Message       string
+	StackTrace    template.HTML
+	Debug         bool
 }

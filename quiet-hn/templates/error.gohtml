@@ -6,28 +6,55 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Error</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css" integrity="sha512-NhSC1YmyruXifcj/KFRWoC561YpHpc5Jtzgvbuzx5VozKpWvQ+4nXhPdFgmx8xqexRcpAglTj9sIBWINXa8x5w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="/errors.css">
 </head>
 
 <body>
-    <div class="container">
-        <div class="status-code">
-            <h2>{{.StatusCode}}</h2>
-        </div>
-        <div class="status-code">
-            <h2>{{.Message}}</h2>
-        </div>
-
-        {{if .Debug}}
-        <div class="debug">
-            <h3 class="danger">Debug Mode is On</h3>
-            <h4>Stack Trace</h4>
-            <pre>
-                {{ .StackTrace}}
-            </pre>
-        </div>
-        {{end}}
+    {{if .Debug}}
+    <div id="explanation">
+            Debug Mode is ON
     </div>
+    {{end}}
+    <div id="summary">
+        <h1> Error at {{.Path}} </h1>
+
+    {{ if not .Debug}}
+        <pre class="exception_value">Status Code: {{.StatusCode}}</pre>
+    
+    {{else}}
+        <pre class="exception_value">{{.Message}}</pre>
+        <table class="meta">
+            <tr>
+                <th>Status Code:</th>
+                <td>{{ .StatusCode }}</td>
+            </tr>
+            <tr>
+                <th>Request Method:</th>
+                <td>{{ .Method }}</td>
+            </tr>
+            <tr>
+                <th>Request URL:</th>
+                <td>{{ .URL }}</td>
+            </tr>
+            <tr>
+                <th>Golang Version:</th>
+                <td>{{ .GolangVersion }}</td>
+            </tr>
+            <tr>
+                <th>Server time:</th>
+                <td>{{.ServerTime}}</td>
+            </tr>
+        </table>
+    </div>
+
+    <div id="traceback">
+        <h2>Traceback</h2>
+        <pre>
+            {{ .StackTrace}}
+        </pre>
+    </div>
+    {{end}}
 </body>
 
 </html>

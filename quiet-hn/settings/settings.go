@@ -8,18 +8,20 @@ import (
 )
 
 type GlobalSettings struct {
-	Debug                bool
-	Port                 int
-	MaxStories           int
-	CacheTimeout         time.Duration
-	RedisHost            string
-	RedisPort            int
-	RedisAddr            string
-	RedisPassword        string
-	CachingStrategy      string
-	RateLimitingType     string
-	RateLimitingInterval time.Duration
-	BurstRateCount       int
+	Debug                  bool
+	Port                   int
+	MaxStories             int
+	CacheTimeout           time.Duration
+	RedisHost              string
+	RedisPort              int
+	RedisAddr              string
+	RedisPassword          string
+	CachingStrategy        string
+	RateLimitingType       string
+	RateLimitingInterval   time.Duration
+	BurstRateCount         int
+	StackTraceVisibleLines int
+	StackTraceTheme        string
 }
 
 func (s *GlobalSettings) ToJSON() string {
@@ -43,17 +45,19 @@ const (
 
 func init() {
 	Settings = &GlobalSettings{
-		Debug:                false,
-		Port:                 8080,
-		MaxStories:           30,
-		CacheTimeout:         time.Second * 10,
-		RedisHost:            "localhost",
-		RedisPort:            6379,
-		RedisPassword:        "",
-		CachingStrategy:      MemCacheStrategy,
-		RateLimitingType:     NormalRateLimting,
-		RateLimitingInterval: time.Second * 5,
-		BurstRateCount:       5,
+		Debug:                  false,
+		Port:                   8080,
+		MaxStories:             30,
+		CacheTimeout:           time.Second * 10,
+		RedisHost:              "localhost",
+		RedisPort:              6379,
+		RedisPassword:          "",
+		CachingStrategy:        MemCacheStrategy,
+		RateLimitingType:       NormalRateLimting,
+		RateLimitingInterval:   time.Second * 5,
+		BurstRateCount:         5,
+		StackTraceVisibleLines: 5,
+		StackTraceTheme:        "doom-one",
 	}
 
 	flag.BoolVar(&Settings.Debug, "debug", Settings.Debug, "Set to false if running in production")
@@ -87,6 +91,9 @@ func init() {
 
 	flag.DurationVar(&Settings.RateLimitingInterval, "rate-interval", Settings.RateLimitingInterval, "Rate limiting interval")
 	flag.IntVar(&Settings.BurstRateCount, "rate-burst", Settings.BurstRateCount, "Burst rate count")
+
+	flag.IntVar(&Settings.StackTraceVisibleLines, "stack-lines", Settings.StackTraceVisibleLines, "Number of lines of stack trace to show in error page")
+	flag.StringVar(&Settings.StackTraceTheme, "stack-theme", Settings.StackTraceTheme, "Theme for stack trace, valid choices are: dark, light")
 
 	flag.Parse()
 

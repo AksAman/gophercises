@@ -12,6 +12,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/AksAman/gophercises/quietHN/settings"
 	"github.com/AksAman/gophercises/quietHN/utils"
 	cHTML "github.com/alecthomas/chroma/formatters/html"
 	"github.com/alecthomas/chroma/lexers"
@@ -34,10 +35,13 @@ func ParseStackTraceToHTML(stackTrace string) string {
 		matches := filePathWithLineRegex.FindStringSubmatch(line)
 
 		if len(matches) == 0 || len(matches) != 6 {
+			line = strings.TrimSpace(line)
+			line = strings.Trim(line, "\t")
+			line = fmt.Sprintf("<span class='normal-stack'>%s</span>", line)
 			htmlLines = append(htmlLines, line)
 			continue
 		}
-		initialTabs := matches[1]
+		// initialTabs := matches[1]
 		filePath := strings.TrimSpace(matches[2])
 		fileName := strings.TrimSpace(matches[3])
 		lineNumber := strings.TrimSpace(matches[4])
@@ -50,13 +54,13 @@ func ParseStackTraceToHTML(stackTrace string) string {
 		v.Set("line", lineNumber)
 		endpoint := fmt.Sprintf("/__internal__/view-source?%s#line%s", v.Encode(), lineNumber)
 
-		href := fmt.Sprintf("%s<a href=\"%s\">%s:%s</a> %s", initialTabs, endpoint, completeFilePath, lineNumber, rest)
+		href := fmt.Sprintf("<a href=\"%s\">%s:%s</a> %s", endpoint, completeFilePath, lineNumber, rest)
 		htmlLines = append(htmlLines, href)
 		lineNumberInt, err := strconv.Atoi(lineNumber)
 		if err != nil {
 			htmlLines = append(htmlLines, err.Error())
 		}
-		srcContents, err := GetHighlightedSourceCode(completeFilePath, lineNumberInt, "monokai", 3)
+		srcContents, err := GetHighlightedSourceCode(completeFilePath, lineNumberInt, settings.Settings.StackTraceTheme, settings.Settings.StackTraceVisibleLines)
 		if err != nil {
 			htmlLines = append(htmlLines, err.Error())
 		} else {
@@ -82,11 +86,13 @@ func GetHighlightedSourceCode(srcPath string, lineNumber int, theme string, line
 
 	fileContents := ""
 	initialLineNumber := 0
+	lineRange := [][2]int{}
+
 	if lineCount > 0 {
-		initialLineNumber = lineNumber
+		initialLineNumber = lineNumber - lineCount
 
 		n := 0
-		startLine := lineNumber - lineCount
+		startLine := lineNumber - lineCount + 1
 		if startLine < 0 {
 			startLine = 0
 		}
@@ -104,11 +110,9 @@ func GetHighlightedSourceCode(srcPath string, lineNumber int, theme string, line
 
 		// startLine = 0
 		// endLine = totalLineCount
-
-		lineNumber = lineCount + 1
-
-		fmt.Printf("startLine: %v\n", startLine)
-		fmt.Printf("endLine: %v\n", endLine)
+		if lineNumber > 0 {
+			lineRange = append(lineRange, [2]int{lineNumber, lineNumber})
+		}
 
 		fileContentBuilder := strings.Builder{}
 		for scanner.Scan() {
@@ -128,7 +132,9 @@ func GetHighlightedSourceCode(srcPath string, lineNumber int, theme string, line
 
 		fileContents = fileContentBuilder.String()
 	} else {
-
+		if lineNumber > 0 {
+			lineRange = append(lineRange, [2]int{lineNumber, lineNumber})
+		}
 		fileBuffer := bytes.NewBuffer(nil)
 		_, err = io.Copy(fileBuffer, file)
 		if err != nil {
@@ -148,13 +154,6 @@ func GetHighlightedSourceCode(srcPath string, lineNumber int, theme string, line
 		style = styles.Fallback
 	}
 
-	lineRange := [][2]int{}
-	if lineNumber > 0 {
-		lineRange = append(lineRange, [2]int{initialLineNumber, initialLineNumber})
-	}
-
-	fmt.Println("srcPath", srcPath, "lineRange: ", lineRange)
-
 	formatter := cHTML.New(
 		cHTML.BaseLineNumber(initialLineNumber),
 		cHTML.WithLineNumbers(true),
@@ -167,11 +166,6 @@ func GetHighlightedSourceCode(srcPath string, lineNumber int, theme string, line
 	if err != nil {
 		return "", err
 	}
-
-	// if html, err := html.Parse(buffer.String()); err == nil {
-	// 	// find line number
-
-	// }
 
 	return buffer.String(), nil
 
